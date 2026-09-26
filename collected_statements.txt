@@ -1,0 +1,46 @@
+YAOUNDÉ COMPILER SEMANTIC SUMMARY
+======================================
+01. transport | action | VALID
+    Brother, drop me na at Carrefour Yaoundé, the traffic done tire me small
+
+02. transport | statement | VALID
+    Hala me small money, na five hundred francs remain for transport
+
+03. transport | action | VALID
+    Taxi! Yaoundé, Yaoundé! Fill am make we go, pas time dey waka!
+
+04. internet | action | VALID
+    Eh mon Dieu, internet dey do again? I don try restart modem, garrr nothing!
+
+05. energy | narration | VALID
+    The light done cut again, zéro-zéro, na generator we dey use since morning
+
+06. internet | narration | VALID
+    Je wanda why MTN network no fit work for this quarter, it's always down-down
+
+07. market | action | VALID
+    Mama, make you reduce am na small, two thousand francs too much for tomatoes, ekiee
+
+08. market | action | VALID
+    Chop na fresh, fresh! Come take am now, I give you good price, no wahala
+
+09. market | narration | VALID
+    Brother, the bendskin dey charge too much, five hundred for two kilometers, c'est cher ooo
+
+10. security | narration | VALID
+    They say checkpoint ahead, document dey for front, make we be careful pass
+
+11. transport | action | VALID
+    Rain don fall so, the road done become mud, car stuck for quartier Mambanda
+
+12. energy | action | VALID
+    Petrol dey scarce, pump don empty again, we go wait small before go fill tank
+
+13. internet | question | VALID
+    How much for this phone airtime? OK, load me two thousand balance make I browse
+
+14. university | action | VALID
+    Lecture done start, prof say come sit down, but the class dey too crowded, hmmm
+
+15. university | action | VALID
+    After exam finish, we go for beer na, relax small, this semester done tire me
