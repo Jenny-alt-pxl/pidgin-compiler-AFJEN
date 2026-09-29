@@ -1,5 +1,5 @@
 {
- "updated": "2026-09-29T12:20:17",
+ "updated": "2026-09-29T21:34:01",
  "words": {
   "abeg": {
    "count": 2,
@@ -33,8 +33,12 @@
    "count": 1,
    "known": true
   },
+  "asdf": {
+   "count": 1,
+   "known": false
+  },
   "at": {
-   "count": 2,
+   "count": 8,
    "known": true
   },
   "bad": {
@@ -70,7 +74,7 @@
    "known": true
   },
   "brother": {
-   "count": 4,
+   "count": 10,
    "known": true
   },
   "browse": {
@@ -94,7 +98,7 @@
    "known": true
   },
   "carrefour": {
-   "count": 2,
+   "count": 8,
    "known": true
   },
   "charge": {
@@ -134,7 +138,7 @@
    "known": true
   },
   "dey": {
-   "count": 24,
+   "count": 30,
    "known": true
   },
   "do": {
@@ -150,7 +154,7 @@
    "known": true
   },
   "done": {
-   "count": 6,
+   "count": 12,
    "known": true
   },
   "down": {
@@ -166,7 +170,7 @@
    "known": true
   },
   "drop": {
-   "count": 2,
+   "count": 8,
    "known": true
   },
   "eh": {
@@ -346,7 +350,7 @@
    "known": true
   },
   "me": {
-   "count": 8,
+   "count": 20,
    "known": true
   },
   "message": {
@@ -390,7 +394,7 @@
    "known": true
   },
   "na": {
-   "count": 7,
+   "count": 13,
    "known": true
   },
   "network": {
@@ -418,7 +422,7 @@
    "known": true
   },
   "ok": {
-   "count": 8,
+   "count": 11,
    "known": true
   },
   "one": {
@@ -489,6 +493,10 @@
    "count": 2,
    "known": true
   },
+  "qwerty": {
+   "count": 1,
+   "known": false
+  },
   "rain": {
    "count": 2,
    "known": true
@@ -558,11 +566,11 @@
    "known": true
   },
   "small": {
-   "count": 8,
+   "count": 14,
    "known": true
   },
   "so": {
-   "count": 5,
+   "count": 8,
    "known": true
   },
   "start": {
@@ -602,7 +610,7 @@
    "known": true
   },
   "the": {
-   "count": 15,
+   "count": 21,
    "known": true
   },
   "they": {
@@ -622,7 +630,7 @@
    "known": true
   },
   "tire": {
-   "count": 3,
+   "count": 9,
    "known": true
   },
   "tomatoes": {
@@ -638,7 +646,7 @@
    "known": true
   },
   "traffic": {
-   "count": 2,
+   "count": 8,
    "known": true
   },
   "transport": {
@@ -694,11 +702,11 @@
    "known": true
   },
   "yaoundé": {
-   "count": 4,
+   "count": 10,
    "known": true
   },
   "you": {
-   "count": 10,
+   "count": 13,
    "known": true
   },
   "your": {

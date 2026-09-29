@@ -28,7 +28,7 @@ Requires Python 3.10+ (tkinter is included with the standard Windows installer).
 
 ```bash
 python run_gui.py                              # the AFJEN Compiler desktop window (Python + tkinter)
-cd web && npm install && npm start             # the AFJEN web app at http://localhost:3000 (JavaScript + Node.js + Express)
+python run_web.py                              # the AFJEN web app in your browser (JavaScript + Node.js + Express)
 python main.py                                 # interactive text menu
 python main.py translate "You dey ok?"         # English and Français in the terminal
 python main.py analyze "The light done cut again"
@@ -49,14 +49,29 @@ AFJEN has one compiler engine and two ways to use it:
 | | Language / framework | Run |
 |---|---|---|
 | **Desktop app** | Python + tkinter | `python run_gui.py` |
-| **Web app** | JavaScript (Node.js + **Express** server, HTML/CSS/JS front end) | `cd web && npm install && npm start` |
+| **Web app** | JavaScript (Node.js + **Express** server, HTML/CSS/JS front end) | `python run_web.py` (or `npm install` then `npm start`) |
 
 The web app lives in `web/`. The Express server (`web/server.js`) starts the Python engine once (`web/bridge.py`,
 which calls `src/engine.py`) and exchanges one JSON line per request with it, so the browser and the desktop window
 always give identical results - lexer, LL(1) parser, translation, dictionary and statements are never duplicated.
 API: `POST /api/analyze`, `GET|POST|DELETE /api/dictionary`, `GET|POST|DELETE /api/statements`, `GET /api/insights`,
-`GET /api/health`. Requirements: Node.js 18+ and Python 3 (the server also finds the Windows `py` launcher; set
-`AFJEN_PYTHON` to use a specific Python).
+`GET /api/health`. Requirements: Node.js 18+ (nodejs.org) and Python 3.
+
+**Running the web app** - from the project folder (`pidgin-compiler-AFJEN`):
+```
+python run_web.py
+```
+It finds Node.js, installs the web dependencies the first time, picks a free port (3000, or the next free one),
+starts the server and opens your browser. Press Ctrl+C to stop. Alternatives: `npm install` then `npm start` (from the
+project folder or from `web/`).
+
+| Problem | Fix |
+|---|---|
+| `Node.js was not found` / `npm is not recognized` | Install the LTS version from nodejs.org, then close and reopen the terminal / VS Code |
+| `Could not read package.json` | You are in the wrong folder - `cd` into `pidgin-compiler-AFJEN` first |
+| `Cannot find module 'express'` | Run `npm install` (or just `python run_web.py`, which installs it) |
+| Page says "Could not start Python" | Run `python run_web.py` (it passes the right Python), or set `AFJEN_PYTHON` to your python.exe |
+| Port 3000 busy | Nothing to do - it moves to 3001, 3002 ... and prints the address |
 
 ## The interface
 

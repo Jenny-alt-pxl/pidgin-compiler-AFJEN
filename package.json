@@ -1,0 +1,11 @@
+{
+  "name": "afjen-compiler",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AFJEN Compiler - run the web app from the project folder: npm install, then npm start",
+  "scripts": {
+    "postinstall": "npm --prefix web install",
+    "start": "npm --prefix web start",
+    "test": "npm --prefix web test"
+  }
+}

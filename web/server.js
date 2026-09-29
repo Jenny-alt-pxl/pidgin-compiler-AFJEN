@@ -9,7 +9,13 @@
  *   npm start            ->  http://localhost:3000
  */
 
-const express = require("express");
+let express;
+try {
+  express = require("express");
+} catch (err) {
+  console.error("The web dependencies are not installed yet.\nRun this once, then start again:\n\n    npm install\n\n(or simply run:  python run_web.py  from the project folder)");
+  process.exit(1);
+}
 const path = require("path");
 const { spawn } = require("child_process");
 const readline = require("readline");
@@ -109,10 +115,24 @@ function createApp(bridge) {
 if (require.main === module) {
   const bridge = new PythonBridge();
   const app = createApp(bridge);
-  const server = app.listen(PORT, () => {
-    console.log(`AFJEN Compiler web app running at http://localhost:${PORT}`);
-  });
-  const shutdown = () => { bridge.stop(); server.close(() => process.exit(0)); };
+  let server;
+  const listen = (port, triesLeft) => {
+    server = app.listen(port, () => {
+      console.log(`AFJEN Compiler web app running at http://localhost:${port}`);
+    });
+    server.on("error", (err) => {
+      if (err.code === "EADDRINUSE" && triesLeft > 0) {
+        console.log(`Port ${port} is busy, trying ${port + 1}...`);
+        listen(port + 1, triesLeft - 1);
+      } else {
+        console.error(`Could not start the server: ${err.message}`);
+        bridge.stop();
+        process.exit(1);
+      }
+    });
+  };
+  listen(Number(PORT), 20);
+  const shutdown = () => { bridge.stop(); if (server) server.close(); process.exit(0); };
   process.on("SIGINT", shutdown);
   process.on("SIGTERM", shutdown);
 }
