@@ -1,10 +1,10 @@
 ================================================================================
-YAOUNDÉ COMPILER - TEST REPORT
+YAOUNDÃ‰ COMPILER - TEST REPORT
 CS4110 - Compiler Construction
 ================================================================================
 
 Statement STMT_001
-Text: Brother, drop me na at Carrefour Yaoundé, the traffic done tire me small
+Text: Brother, drop me na at Carrefour YaoundÃ©, the traffic done tire me small
 Tokens: 15
 Token Breakdown:
   ARTICLE: 1
@@ -31,7 +31,7 @@ Parse Result: ACCEPTED
 --------------------------------------------------------------------------------
 
 Statement STMT_003
-Text: Taxi! Yaoundé, Yaoundé! Fill am make we go, pas time dey waka!
+Text: Taxi! YaoundÃ©, YaoundÃ©! Fill am make we go, pas time dey waka!
 Tokens: 17
 Token Breakdown:
   CONNECTOR: 2
@@ -62,7 +62,7 @@ Parse Result: ACCEPTED
 --------------------------------------------------------------------------------
 
 Statement STMT_005
-Text: The light done cut again, zéro-zéro, na generator we dey use since morning
+Text: The light done cut again, zÃ©ro-zÃ©ro, na generator we dey use since morning
 Tokens: 15
 Token Breakdown:
   ADVERB: 1
