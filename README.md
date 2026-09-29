@@ -27,7 +27,8 @@ by clause. The strict accept / reject behaviour of the grammar is demonstrated b
 Requires Python 3.10+ (tkinter is included with the standard Windows installer). No other packages.
 
 ```bash
-python run_gui.py                              # the AFJEN Compiler window
+python run_gui.py                              # the AFJEN Compiler desktop window (Python + tkinter)
+cd web && npm install && npm start             # the AFJEN web app at http://localhost:3000 (JavaScript + Node.js + Express)
 python main.py                                 # interactive text menu
 python main.py translate "You dey ok?"         # English and Français in the terminal
 python main.py analyze "The light done cut again"
@@ -36,9 +37,26 @@ python main.py accept-reject                   # accepted / rejected sentences (
 python main.py trace "The light done cut"      # step-by-step LL(1) parse (stack, lookahead, action)
 python main.py grammar                         # grammar, FIRST/FOLLOW sets, conflict check
 python main.py words                           # the dictionary (A-Z)
-python tests/test_afjen.py                     # 16 unit tests for the translator, dictionary and statements
+python tests/test_afjen.py                     # 18 unit tests for the translator, dictionary, statements and engine
+cd web && node --test test/api.test.js         # 7 API tests for the web app
 python analysis/generate_tables.py             # regenerate grammar / FIRST-FOLLOW / parsing-table documents
 ```
+
+## Two front ends, two languages
+
+AFJEN has one compiler engine and two ways to use it:
+
+| | Language / framework | Run |
+|---|---|---|
+| **Desktop app** | Python + tkinter | `python run_gui.py` |
+| **Web app** | JavaScript (Node.js + **Express** server, HTML/CSS/JS front end) | `cd web && npm install && npm start` |
+
+The web app lives in `web/`. The Express server (`web/server.js`) starts the Python engine once (`web/bridge.py`,
+which calls `src/engine.py`) and exchanges one JSON line per request with it, so the browser and the desktop window
+always give identical results - lexer, LL(1) parser, translation, dictionary and statements are never duplicated.
+API: `POST /api/analyze`, `GET|POST|DELETE /api/dictionary`, `GET|POST|DELETE /api/statements`, `GET /api/insights`,
+`GET /api/health`. Requirements: Node.js 18+ and Python 3 (the server also finds the Windows `py` launcher; set
+`AFJEN_PYTHON` to use a specific Python).
 
 ## The interface
 
@@ -104,7 +122,8 @@ the strict grammar. `data/collected_statements.txt` lists them by topic.
 ## Project structure
 
 ```
-run_gui.py, gui_application.py     the AFJEN window
+run_gui.py, gui_application.py     the AFJEN desktop window (Python + tkinter)
+web/                               the AFJEN web app: server.js (Express), bridge.py, public/ (HTML, CSS, JS), test/
 main.py                            menu and command line
 src/                               lexer, grammar, parsers, translator, dictionary, statements, semantic analysis
 tests/test_cases.py                exam tests (30 statements + accepted / rejected sentences)
@@ -119,7 +138,8 @@ FINAL_REPORT.md, PRESENTATION_GUIDE.md, PROJECT_COMPLETION_SUMMARY.txt   documen
 
 `python main.py test` runs lexical, syntactic, semantic and diagnostic tests on all 30 statements and the
 accepted / rejected sentence sets (30 collected + 14 unseen grammatical sentences must be accepted; 14 malformed
-sequences must be rejected). `python tests/test_afjen.py` runs 16 unit tests.
+sequences must be rejected). `python tests/test_afjen.py` runs 18 unit tests, and `node --test web/test/api.test.js` runs 7 API tests through the
+JavaScript server into the Python engine.
 
 ## Notes on the repository
 

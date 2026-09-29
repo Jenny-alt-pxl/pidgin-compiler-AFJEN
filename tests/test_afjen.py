@@ -116,6 +116,23 @@ class StatementTests(unittest.TestCase):
         self.assertFalse(statements.add_statement(str(corpus.CORPUS[0]["text"]), "a", "b", "x")[0])
 
 
+class EngineTests(unittest.TestCase):
+    def test_analyze_returns_both_languages_and_never_empties(self):
+        import engine
+        r = engine.analyze("You dey dey ok so?")
+        self.assertEqual(r["translations"]["en"]["text"], "Are you normal?")
+        self.assertEqual(r["translations"]["fr"]["text"], "Tu es normal ?")
+        self.assertFalse(engine.analyze("asdf qwerty 123 !!!")["empty"])
+        self.assertTrue(engine.analyze("   ")["empty"])
+
+    def test_dictionary_rows_are_json_friendly(self):
+        import json
+        import engine
+        data = engine.dictionary_rows()
+        json.dumps(data, ensure_ascii=False)
+        self.assertGreaterEqual(data["total"], 100)
+
+
 class DictionaryOrderTests(unittest.TestCase):
     def test_alphabetical(self):
         import dictionary

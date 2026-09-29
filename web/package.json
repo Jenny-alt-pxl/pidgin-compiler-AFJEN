@@ -1,0 +1,14 @@
+{
+  "name": "afjen-web",
+  "version": "1.0.0",
+  "description": "AFJEN Compiler web app - Node.js + Express front end for the Python compiler engine",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/api.test.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
