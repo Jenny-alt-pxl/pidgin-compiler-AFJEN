@@ -1,0 +1,253 @@
+# FIRST AND FOLLOW SETS ANALYSIS
+
+## Simplified Grammar for Analysis
+
+```
+1. S → NP VP | VP
+2. NP → ARTICLE? N
+3. VP → PIDGIN_V V | V NP | V NP PP
+4. PP → PREP NP
+5. N → NOUN | PROPER_NOUN
+6. V → VERB
+7. PIDGIN_V → "dey" | "done" | "fit" | "go"
+8. ARTICLE → "the" | "a"
+9. PREP → "at" | "for" | "in"
+10. NOUN → (terminal tokens)
+11. PROPER_NOUN → (terminal tokens)
+12. VERB → (terminal tokens)
+```
+
+---
+
+## TERMINAL SYMBOLS
+
+```
+Terminals: NOUN, PROPER_NOUN, VERB, ARTICLE, PREPOSITION, 
+           "dey", "done", "fit", "go", "at", "for", "in", $
+```
+
+---
+
+## FIRST SETS
+
+### First(ARTICLE)
+```
+FIRST(ARTICLE) = { "the", "a" }
+```
+
+### First(N)
+```
+FIRST(N) = FIRST(NOUN) ∪ FIRST(PROPER_NOUN)
+         = { NOUN tokens } ∪ { PROPER_NOUN tokens }
+         = All noun tokens in our data
+         Example: { "taxi", "money", "Yaoundé", "Carrefour", ... }
+```
+
+### First(NP)
+```
+FIRST(NP) = { ε } ∪ FIRST(ARTICLE) ∪ FIRST(N)    [because ARTICLE is optional]
+          = { ε, "the", "a" } ∪ { all nouns }
+          = { "the", "a", all noun tokens, ε }
+```
+
+### First(PIDGIN_V)
+```
+FIRST(PIDGIN_V) = { "dey", "done", "fit", "go" }
+```
+
+### First(V)
+```
+FIRST(V) = { all VERB tokens }
+        = { "drop", "tire", "hala", "try", "cut", "remain", "fill", ... }
+```
+
+### First(PP)
+```
+FIRST(PP) = FIRST(PREP)
+          = { "at", "for", "in", ... }
+```
+
+### First(VP)
+```
+FIRST(VP) = FIRST(PIDGIN_V) ∪ FIRST(V)
+          = { "dey", "done", "fit", "go" } ∪ { all verb tokens }
+          = { "dey", "done", "fit", "go", "drop", "tire", ... }
+```
+
+### First(S)
+```
+FIRST(S) = FIRST(NP) ∪ FIRST(VP)
+         = { "the", "a", noun tokens, "dey", "done", "fit", "go", all verb tokens }
+```
+
+---
+
+## FOLLOW SETS
+
+Using the production rules:
+
+```
+S → NP VP | VP
+NP → ARTICLE? N
+VP → PIDGIN_V V | V NP | V NP PP
+PP → PREP NP
+```
+
+### Follow(S)
+```
+FOLLOW(S) = { $ }    [S is the start symbol]
+```
+
+### Follow(NP)
+```
+FOLLOW(NP) comes from:
+  1. S → NP VP  → FOLLOW(NP) includes FIRST(VP)
+  2. VP → V NP  → FOLLOW(NP) includes FOLLOW(VP)
+  3. VP → V NP PP → FOLLOW(NP) includes FIRST(PP)
+  4. PP → PREP NP → FOLLOW(NP) includes FOLLOW(PP)
+
+FOLLOW(NP) = FIRST(VP) ∪ FIRST(PP) ∪ FOLLOW(VP)
+           = { "dey", "done", "fit", "go", VERB tokens } 
+             ∪ { "at", "for", "in" } 
+             ∪ { $, FOLLOW(S) }
+           = { "dey", "done", "fit", "go", verbs, "at", "for", "in", $ }
+```
+
+### Follow(VP)
+```
+FOLLOW(VP) comes from:
+  1. S → NP VP → FOLLOW(VP) includes FOLLOW(S) = { $ }
+  2. S → VP → FOLLOW(VP) includes FOLLOW(S) = { $ }
+
+FOLLOW(VP) = { $ }
+```
+
+### Follow(V)
+```
+FOLLOW(V) comes from:
+  1. VP → PIDGIN_V V → FOLLOW(V) includes FOLLOW(VP) = { $ }
+  2. VP → V NP → FOLLOW(V) includes FIRST(NP) - {ε}
+  3. VP → V NP PP → FOLLOW(V) includes FIRST(NP) - {ε}
+
+FOLLOW(V) = { $ } ∪ FIRST(NP) - {ε}
+          = { $, "the", "a", noun tokens }
+```
+
+### Follow(N)
+```
+FOLLOW(N) comes from:
+  NP → ARTICLE? N → FOLLOW(N) includes FOLLOW(NP)
+
+FOLLOW(N) = FOLLOW(NP) 
+          = { "dey", "done", "fit", "go", verbs, "at", "for", "in", $ }
+```
+
+### Follow(PIDGIN_V)
+```
+FOLLOW(PIDGIN_V) comes from:
+  VP → PIDGIN_V V → FOLLOW(PIDGIN_V) includes FIRST(V)
+
+FOLLOW(PIDGIN_V) = FIRST(V)
+                 = { all verb tokens }
+```
+
+### Follow(PP)
+```
+FOLLOW(PP) comes from:
+  1. VP → V NP PP → FOLLOW(PP) includes FOLLOW(VP) = { $ }
+  2. S contexts → includes $
+
+FOLLOW(PP) = { $ }
+```
+
+### Follow(ARTICLE)
+```
+FOLLOW(ARTICLE) comes from:
+  NP → ARTICLE? N → after consuming ARTICLE, we have N
+  FOLLOW(ARTICLE) includes FIRST(N)
+
+FOLLOW(ARTICLE) = FIRST(N)
+                = { noun tokens }
+```
+
+### Follow(PREP)
+```
+FOLLOW(PREP) comes from:
+  PP → PREP NP → after PREP, we have NP
+  FOLLOW(PREP) includes FIRST(NP)
+
+FOLLOW(PREP) = FIRST(NP) - {ε}
+             = { "the", "a", noun tokens }
+```
+
+---
+
+## SUMMARY TABLE
+
+| Non-Terminal | FIRST Set | FOLLOW Set |
+|--------------|-----------|-----------|
+| S | {NOUNS, VERBS, "dey", "done"...} | {$} |
+| NP | {ε, "the", "a", NOUNS} | {VERBS, "at", "for", "in", $} |
+| VP | {VERBS, "dey", "done", "fit"} | {$} |
+| PP | {"at", "for", "in"} | {$} |
+| N | {NOUNS} | {VERBS, "at", "for", "in", $} |
+| V | {VERBS} | {$, "the", "a", NOUNS} |
+| PIDGIN_V | {"dey", "done", "fit", "go"} | {VERBS} |
+| ARTICLE | {"the", "a"} | {NOUNS} |
+| PREP | {"at", "for", "in"} | {"the", "a", NOUNS} |
+
+---
+
+## CONFLICTS AND RESOLUTIONS
+
+### Conflict 1: NP Optional Article
+```
+NP → ARTICLE? N
+```
+When we see a NOUN or PROPER_NOUN:
+- If preceded by ARTICLE ("the", "a"), parse ARTICLE N
+- If not, parse just N (empty ARTICLE)
+
+**Resolution:** Use lookahead to determine if ARTICLE is present
+
+### Conflict 2: VP Multiple Productions
+```
+VP → PIDGIN_V V | V NP | V NP PP
+```
+When we see PIDGIN_V: use rule 1
+When we see VERB (not PIDGIN_V): check if followed by NP or PP
+- Use lookahead: FIRST(NP) vs FIRST(PP) vs FOLLOW(VP)
+
+**Resolution:** Recursive descent parser with backtracking handles this well
+
+### Conflict 3: S → NP VP vs S → VP
+```
+S → NP VP | VP
+```
+When starting with ARTICLE or NOUN:
+- Could be start of NP, so parse NP VP
+- Or could be just noun followed by verb
+
+**Resolution:** 
+- If NOUN followed by VERB/PIDGIN_VERB → likely NP VP
+- Use predictive parsing with lookahead
+
+---
+
+## LL(1) COMPATIBILITY CHECK
+
+For LL(1) parsing, no two productions for the same non-terminal should have 
+overlapping FIRST sets.
+
+| Non-Terminal | Production | FIRST Set | Disjoint? |
+|--------------|-----------|-----------|-----------|
+| S | S → NP VP | FIRST(NP) = {NOUNS, "the", "a"} | ✓ |
+| S | S → VP | FIRST(VP) = {VERBS, "dey"} | ✓ |
+| VP | VP → PIDGIN_V V | {"dey", "done", "fit", "go"} | ✓ |
+| VP | VP → V NP | {VERBS} | ✓ |
+| VP | VP → V NP PP | {VERBS} | ⚠ conflict with VP → V NP |
+| NP | NP → ARTICLE? N | FIRST(ARTICLE) ∪ FIRST(N) | ✓ |
+
+**Note:** VP has a conflict between "V NP" and "V NP PP" because both start with V.
+This is resolved by using lookahead for what follows NP (presence of PP).
+
