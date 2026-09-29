@@ -425,7 +425,7 @@ Each student presents for **3 minutes** (see `PRESENTATION_GUIDE.md`; the paper 
 ---
 
 ## 9. CHALLENGES, LIMITATIONS AND FUTURE WORK
-- **Grammar coverage:** the grammar covers the 15 collected statements and 12 unseen sentences, but it is still small: adjacent nouns are one compound noun, repeated serial verbs are accepted, and words missing from the lexer default to NOUN. *Future work:* a larger corpus and vocabulary, and adverbial clauses with their own subject.
+- **Grammar coverage:** the grammar covers the 15 collected statements and 14 unseen sentences, but it is still small: adjacent nouns are one compound noun, repeated serial verbs are accepted, and words missing from the lexer default to NOUN. *Future work:* a larger corpus and vocabulary, and adverbial clauses with their own subject.
 - **Multi-word tokens:** "mon Dieu", "c'est cher" are handled by prioritised multi-word patterns.
 - **Ambiguous markers:** `na`, `am`, `go`, `fit` depend on context; the lexer classifies from word lists, not context.
 - **Dataset size:** 15 statements; token statistics are indicative only.

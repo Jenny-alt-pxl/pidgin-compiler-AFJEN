@@ -409,7 +409,7 @@ The grammar captures recurring patterns in informal communication while acknowle
 - `src/grammar.py` defines the LL(1) grammar; FIRST/FOLLOW sets and the parsing table are computed from it (0 conflicts).
 - `src/parser.py` is a table-driven predictive parser (explicit stack, 1-token lookahead) with precise error messages.
 - `src/lenient_parser.py` is the earlier permissive parser, kept only for comparison.
-- Tests: 15 collected statements accepted, 14 unseen grammatical sentences accepted, 15 malformed sequences rejected.
+- Tests: 15 collected statements accepted, 14 unseen grammatical sentences accepted, 14 malformed sequences rejected.
 
 ```bash
 python main.py                     # interactive menu
