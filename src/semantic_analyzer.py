@@ -105,7 +105,7 @@ class SemanticAnalyzer:
         ]
 
         report = {
-            "project": "Yaoundé Compiler Project",
+            "project": "AFJEN Compiler",
             "statements": [],
         }
 
@@ -151,7 +151,7 @@ class SemanticAnalyzer:
         ]
 
         lines = [
-            "YAOUNDÉ COMPILER SEMANTIC SUMMARY",
+            "AFJEN COMPILER SEMANTIC SUMMARY",
             "=" * 38,
         ]
 

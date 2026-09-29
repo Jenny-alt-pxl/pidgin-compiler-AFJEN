@@ -1,4 +1,4 @@
-# YAOUNDÉ COMPILER CONSTRUCTION PROJECT
+# AFJEN COMPILER - YAOUNDÉ COMPILER CONSTRUCTION PROJECT
 ## Lexical and Syntactic Analysis of Informal Urban Communication in Yaoundé
 
 **Course:** CS4110 - Compiler Construction | **Instructor:** Engr. Tanwi Nkiamboh  

@@ -181,3 +181,62 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# ---------------------------------------------------------------------------
+# Never-reject analysis (used by the AFJEN GUI): any text is analysed
+# ---------------------------------------------------------------------------
+import re as _re
+
+
+def analyze_robust(text: str) -> dict:
+    """
+    Analyse arbitrarily long text without ever refusing it.
+
+    Each sentence is parsed with the strict LL(1) parser. If the whole sentence does not match, it is
+    split into clauses (at commas / connectors) and each clause is parsed on its own; clauses that still
+    do not match are reported as informal fragments. Result kinds: 'full', 'partial', 'informal'.
+    """
+    lexer = LexicalAnalyzer()
+    sentences = [s.strip() for s in _re.split(r"(?<=[.!?])\s+|\n+", text.strip()) if s.strip()]
+    results = []
+    matched_total = clause_total = 0
+    for sentence in sentences:
+        tree, ok, tokens, diagnostics = parse_statement_detailed(sentence)
+        real = [t for t in tokens if t.type != TokenType.EOF]
+        if ok:
+            results.append({"text": sentence, "kind": "full", "trees": [tree.compact()], "fragments": [],
+                            "matched": 1, "total": 1, "tokens": real})
+            matched_total += 1
+            clause_total += 1
+            continue
+        clauses, cur = [], []
+        for t in real:
+            if t.type == TokenType.CONNECTOR and t.value == ",":
+                if cur:
+                    clauses.append(cur)
+                cur = []
+            else:
+                cur.append(t)
+        if cur:
+            clauses.append(cur)
+        trees, fragments = [], []
+        for clause in clauses:
+            eof = Token(TokenType.EOF, "", clause[-1].line, clause[-1].column + len(clause[-1].value))
+            parser = Parser(list(clause) + [eof])
+            sub, sub_ok = parser.parse()
+            words = " ".join(t.value for t in clause)
+            if sub_ok:
+                trees.append(sub.compact())
+            else:
+                fragments.append((words, parser.errors[0] if parser.errors else ""))
+        matched = len(trees)
+        total = max(len(clauses), 1)
+        kind = "partial" if matched else "informal"
+        results.append({"text": sentence, "kind": kind, "trees": trees, "fragments": fragments,
+                        "matched": matched, "total": total, "tokens": real, "diagnostic": diagnostics[0]})
+        matched_total += matched
+        clause_total += total
+    all_tokens = [t for r in results for t in r["tokens"]]
+    return {"sentences": results, "tokens": all_tokens, "matched": matched_total, "total": max(clause_total, 1),
+            "coverage": round(100 * matched_total / max(clause_total, 1))}

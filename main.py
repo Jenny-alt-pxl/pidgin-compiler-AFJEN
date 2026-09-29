@@ -1,5 +1,5 @@
 """
-Main Runner Script for Yaoundé Compiler Project
+Main Runner Script for AFJEN Compiler (Yaoundé Compiler Project)
 CS4110 - Compiler Construction
 Runs lexical analysis, parsing, and full test suite
 """
@@ -64,7 +64,7 @@ def run_single_statement_analysis(statement: str):
 
 def run_demo():
     """Run demo with a few sample statements"""
-    print_header("YAOUNDÉ COMPILER - INTERACTIVE DEMO")
+    print_header("AFJEN COMPILER - INTERACTIVE DEMO")
     
     demo_statements = [
         "Brother, drop me na at Carrefour Yaoundé",
@@ -133,7 +133,7 @@ def run_trace(statement: str):
 def show_menu():
     """Show interactive menu"""
     while True:
-        print_header("YAOUNDÉ COMPILER PROJECT - MAIN MENU")
+        print_header("AFJEN COMPILER - MAIN MENU")
         print("1. Run Demo Analysis (3 sample statements)")
         print("2. Analyze Single Statement (enter your own)")
         print("3. Run Full Test Suite (all 15 statements)")
@@ -178,7 +178,7 @@ def show_menu():
                 run_trace(stmt)
 
         elif choice in ("9", "q", "exit"):
-            print("\nThank you for using Yaoundé Compiler!")
+            print("\nThank you for using AFJEN Compiler!")
             sys.exit(0)
             
         else:
@@ -192,7 +192,7 @@ def show_project_info():
     print_header("PROJECT INFORMATION")
     
     info = """
-YAOUNDÉ COMPILER CONSTRUCTION PROJECT
+AFJEN COMPILER - YAOUNDÉ COMPILER CONSTRUCTION PROJECT
 Course: CS4110 - Compiler Construction
 Instructor: Engr. Tanwi Nkiamboh
 Institution: ICT University
@@ -282,6 +282,17 @@ def main():
             sys.exit(0 if run_accept_reject_tests() else 1)
         elif sys.argv[1] == "trace" and len(sys.argv) > 2:
             run_trace(" ".join(sys.argv[2:]))
+        elif sys.argv[1] == "translate" and len(sys.argv) > 2:
+            from translator import translate
+            text = " ".join(sys.argv[2:])
+            for lang, label in (("en", "English "), ("fr", "Français")):
+                result, method = translate(text, lang)
+                print(f"{label} ({method}): {result}")
+        elif sys.argv[1] == "words":
+            from dictionary import DICTIONARY
+            print(f"AFJEN dictionary: {len(DICTIONARY)} words\n")
+            for word, kind, en, fr in DICTIONARY:
+                print(f"{word:<14}{kind:<15}{en:<26}{fr}")
         elif sys.argv[1] in {"report", "export-json"}:
             generate_semantic_report()
         elif sys.argv[1] == "analyze" and len(sys.argv) > 2:
@@ -292,6 +303,8 @@ def main():
             print("  python main.py demo              - Run demo")
             print("  python main.py test              - Run full test suite")
             print("  python main.py analyze <text>    - Analyze custom statement")
+            print("  python main.py translate <text>  - Translate to English and French")
+            print("  python main.py words             - List the AFJEN dictionary")
             print("  python main.py grammar           - Show LL(1) grammar, FIRST/FOLLOW sets")
             print("  python main.py accept-reject     - Accepted/rejected sentence tests")
             print("  python main.py trace <text>      - Step-by-step LL(1) parse trace")

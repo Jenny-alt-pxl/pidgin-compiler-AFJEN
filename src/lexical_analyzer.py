@@ -67,7 +67,7 @@ class LexicalAnalyzer:
             (r"\bJe\s+wanda\b", TokenType.CODE_MIXED),
 
             # Interjections / slang (before generic words; zéro-zéro contains a hyphen)
-            (r"(?<![\wé-])(garrr|zéro-zéro|ekiee|hmmm|OK|Eh|ooo|wahala)(?![\wé-])", TokenType.INTERJECTION),
+            (r"(?<![\wé-])(garrr|zéro-zéro|ekiee|hmmm|OK|Eh|ooo|wahala|abeg|ehh|haba|chai)(?![\wé-])", TokenType.INTERJECTION),
 
             # Pidgin aspect auxiliaries: dey (progressive), done/don (perfect), fit (can)
             (r"\b(dey|done|don|fit)\b", TokenType.PIDGIN_VERB),
@@ -77,7 +77,7 @@ class LexicalAnalyzer:
             (r"\bmake\b", TokenType.SUBJUNCTIVE),
 
             # Question words
-            (r"\b(How|Why|What|where)\b", TokenType.QUESTION_WORD),
+            (r"\b(How|Why|What|where|wetin|who|when)\b", TokenType.QUESTION_WORD),
 
             # Pidgin particles
             (r"\b(na|am|me|small)\b", TokenType.PIDGIN_MARKER),
@@ -110,7 +110,7 @@ class LexicalAnalyzer:
             (r"\b(Yaoundé|Carrefour|Mambanda|MTN|Mama|Brother|Prof|ICT)\b", TokenType.PROPER_NOUN),
 
             # Verbs
-            (r"\b(drop|tire|hala|try|cut|remain|fill|go|waka|take|load|start|finish|work|charge|reduce|browse|relax|say|come|use|give|wait|empty|fall|stuck|restart|become|be|sit|do|buy|see|know|reach|stop|pay|drive|park|arrive|move|sell|cook|eat|drink|call|send|ask|tell|carry|bring|leave|stay|open|close|sleep|cost|pick|stand|hold|climb|turn|run|walk)\b", TokenType.VERB),
+            (r"\b(drop|tire|hala|try|cut|remain|fill|go|waka|take|load|start|finish|work|charge|reduce|browse|relax|say|come|use|give|wait|empty|fall|stuck|restart|become|be|sit|do|buy|see|know|reach|stop|pay|drive|park|arrive|move|sell|cook|eat|drink|call|send|ask|tell|carry|bring|leave|stay|open|close|sleep|cost|pick|stand|hold|climb|turn|run|walk|show|sabi|komot|tif|dance|talk|look|want|need|like|love|help|think)\b", TokenType.VERB),
 
             # Nouns (catch-all for remaining words; accents, hyphens, apostrophes allowed inside)
             (r"[a-zà-ÿ]+(?:[-'][a-zà-ÿ]+)*", TokenType.NOUN),

@@ -186,7 +186,7 @@ class TestRunner:
     def run_all_tests(self):
         """Run all tests"""
         print("="*80)
-        print("YAOUNDÉ COMPILER - COMPREHENSIVE TEST SUITE")
+        print("AFJEN COMPILER - COMPREHENSIVE TEST SUITE")
         print("CS4110 - Compiler Construction")
         print("="*80)
         
@@ -295,7 +295,7 @@ class TestRunner:
         """Generate detailed test report"""
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write("="*80 + "\n")
-            f.write("YAOUNDÉ COMPILER - TEST REPORT\n")
+            f.write("AFJEN COMPILER - TEST REPORT\n")
             f.write("CS4110 - Compiler Construction\n")
             f.write("="*80 + "\n\n")
             

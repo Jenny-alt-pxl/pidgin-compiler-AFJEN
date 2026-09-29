@@ -1,4 +1,4 @@
-# Yaoundé Compiler Construction Project
+# AFJEN Compiler - Yaoundé Compiler Construction Project
 
 **Course:** CS4110 - Compiler Construction  
 **Instructor:** Engr. Tanwi Nkiamboh  
@@ -419,3 +419,19 @@ python main.py grammar             # grammar, FIRST/FOLLOW sets
 python main.py trace "The light done cut"
 python analysis/generate_tables.py # regenerate grammar docs
 ```
+
+---
+
+## AFJEN Compiler - GUI, translation and dictionary
+
+```bash
+python run_gui.py                          # AFJEN Compiler window
+python main.py translate "How you dey?"    # English + Français
+python main.py words                       # 260+ word dictionary
+```
+
+- Translates any amount of Pidgin / franc-anglais text into standard English or French
+  (`src/translator.py`: hand-verified translations for the 15 collected statements, rule engine for new text).
+- The Translate tab never rejects input: unknown words are kept and collected in `data/word_bank.json`;
+  loose sentences are analysed clause by clause. The strict LL(1) accept/reject tests remain in the Test Suite tab.
+- `src/dictionary.py` builds the dictionary (264 words) and the persistent word bank.

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Quick Launcher for Yaoundé Compiler GUI
+Quick Launcher for AFJEN Compiler GUI
 Simply run: python run_gui.py
 """
 
@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.join(project_root, 'tests'))
 # Import and run GUI
 try:
     from gui_application import main
-    print("🚀 Launching Yaoundé Compiler GUI...")
+    print("🚀 Launching AFJEN Compiler GUI...")
     print("📊 Interactive Analysis & Testing Interface")
     print("=" * 50)
     main()

@@ -1,576 +1,722 @@
 """
-Interactive GUI Application for Yaoundé Compiler
+AFJEN Compiler - graphical interface
 CS4110 - Compiler Construction
-Graphical interface for lexical analysis and parsing
+
+Type or paste any amount of Yaoundé Pidgin / franc-anglais text and AFJEN gives you:
+  * a translation into standard English or French
+  * the words it found (lexical analysis) and how well they fit the LL(1) grammar (syntactic analysis)
+  * the topic and intent (semantic analysis)
+Nothing is ever refused: unknown words and informal fragments are analysed and simply flagged.
 """
 
-import tkinter as tk
-from tkinter import ttk, scrolledtext, messagebox, filedialog
-import sys
+import contextlib
+import io
 import os
+import re
+import sys
+import tkinter as tk
+import tkinter.font as tkfont
 from datetime import datetime
+from tkinter import filedialog, messagebox, ttk
 
-# Add src directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'tests'))
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(HERE, "src"))
+sys.path.insert(0, os.path.join(HERE, "tests"))
 
-from lexical_analyzer import LexicalAnalyzer, TokenType
-from parser import parse_statement, parse_statement_detailed
+import grammar
+from dictionary import DICTIONARY, KNOWN, WordBank
+from lexical_analyzer import TokenType
+from parser import analyze_robust
+from semantic_analyzer import SemanticAnalyzer
 from test_cases import TestRunner
+from translator import VERIFIED, translate, translate_ex
+
+APP_NAME = "AFJEN Compiler"
+
+# ---------------------------------------------------------------- palette --
+GREEN, GREEN_D, RED, YELLOW = "#0A8F6A", "#067556", "#CE1126", "#FCD116"
+BG, CARD, INK, MUTED, LINE = "#EEF2F8", "#FFFFFF", "#17213A", "#66738F", "#DCE3EF"
+NAVY, NAVY2 = "#0F1B33", "#1B2D52"
+OK_BG, OK_FG = "#D9F2E7", "#0A6B4B"
+MID_BG, MID_FG = "#FFF1C9", "#7A5600"
+INF_BG, INF_FG = "#E1E9FA", "#2B4B99"
+
+FONT, MONO = "Segoe UI", "Consolas"
+
+TOKEN_COLORS = {
+    "NOUN": "#E3F2FD", "PROPER_NOUN": "#CFE6FB", "PRONOUN": "#EDE7F6", "ARTICLE": "#F1F3F6",
+    "VERB": "#E4F5E6", "PIDGIN_VERB": "#C8E6C9", "NEGATION": "#FFE3E3", "SUBJUNCTIVE": "#FFE9D6",
+    "PIDGIN_MARKER": "#FFF3CC", "INTERJECTION": "#FCE4EC", "CODE_MIXED": "#F8D7F0",
+    "ADJECTIVE": "#DDF5F9", "ADVERB": "#DCF2EF", "PREPOSITION": "#F0F4C3", "NUMBER": "#FFECB3",
+    "CONNECTOR": "#ECEFF1", "PUNCTUATION": "#ECEFF1", "QUESTION_WORD": "#E5C9EB",
+}
+
+CATEGORIES = [
+    ("Taxi & Commuting", [0, 1, 2]), ("Internet & Electricity", [3, 4, 5]),
+    ("Market & Business", [6, 7, 8]), ("Security & Rainy Season", [9, 10]),
+    ("Fuel & Transactions", [11, 12]), ("University & Slang", [13, 14]),
+]
+SAMPLES = list(VERIFIED.keys())
+EXAMPLES = [
+    "How you dey? I dey, thank you",
+    "The light done cut again, na generator we dey use",
+    "Mama, make you reduce am na small",
+    "Petrol dey scarce, pump don empty again",
+    "Why the bendskin dey charge too much?",
+]
 
 
-class YaoundeCompilerGUI:
+# ------------------------------------------------------------ custom widgets --
+def round_rect(canvas, x1, y1, x2, y2, r, **kw):
+    pts = [x1 + r, y1, x2 - r, y1, x2, y1, x2, y1 + r, x2, y2 - r, x2, y2, x2 - r, y2, x1 + r, y2, x1, y2,
+           x1, y2 - r, x1, y1 + r, x1, y1]
+    return canvas.create_polygon(pts, smooth=True, **kw)
+
+
+class RoundButton(tk.Canvas):
+    """Flat rounded button with hover effect."""
+
+    def __init__(self, parent, text, command, bg=GREEN, hover=GREEN_D, fg="white", size=11, bold=True,
+                 padx=24, pady=11, radius=12, parent_bg=CARD):
+        font = tkfont.Font(family=FONT, size=size, weight="bold" if bold else "normal")
+        w = font.measure(text) + 2 * padx
+        h = font.metrics("linespace") + 2 * pady
+        super().__init__(parent, width=w, height=h, bg=parent_bg, highlightthickness=0, cursor="hand2")
+        self._shape = round_rect(self, 1, 1, w - 1, h - 1, radius, fill=bg, outline=bg)
+        self.create_text(w / 2, h / 2, text=text, fill=fg, font=font)
+        self._bg, self._hover, self._cmd = bg, hover, command
+        self.bind("<Enter>", lambda e: self.itemconfigure(self._shape, fill=self._hover, outline=self._hover))
+        self.bind("<Leave>", lambda e: self.itemconfigure(self._shape, fill=self._bg, outline=self._bg))
+        self.bind("<Button-1>", lambda e: self._cmd())
+
+
+class Donut(tk.Canvas):
+    """Ring showing the grammar coverage percentage."""
+
+    def __init__(self, parent, size=124, bg=CARD):
+        super().__init__(parent, width=size, height=size, bg=bg, highlightthickness=0)
+        self.size = size
+        self.set(0, GREEN)
+
+    def set(self, pct, colour):
+        self.delete("all")
+        s, pad = self.size, 12
+        self.create_oval(pad, pad, s - pad, s - pad, outline="#E6EBF3", width=11)
+        if pct > 0:
+            self.create_arc(pad, pad, s - pad, s - pad, start=90, extent=-3.6 * min(pct, 99.9), style=tk.ARC,
+                            outline=colour, width=11)
+        self.create_text(s / 2, s / 2 - 3, text=f"{pct}%", font=(FONT, 16, "bold"), fill=INK)
+        self.create_text(s / 2, s / 2 + 17, text="grammar fit", font=(FONT, 8), fill=MUTED)
+
+
+class AfjenApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Yaoundé Compiler - Interactive GUI")
-        self.root.geometry("1400x900")
-        self.root.configure(bg="#f0f0f0")
-        
-        # Configure style
-        self.style = ttk.Style()
-        self.style.theme_use('clam')
-        
-        # Initialize analyzers
-        self.lexical_analyzer = LexicalAnalyzer()
-        self.test_runner = TestRunner()
-        
-        # Create GUI
-        self.create_widgets()
-        self.load_sample_statements()
-        
-    def create_widgets(self):
-        """Create all GUI widgets"""
-        # Main container with notebook (tabs)
-        self.notebook = ttk.Notebook(self.root)
-        self.notebook.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        
-        # Tab 1: Single Statement Analysis
-        self.create_analysis_tab()
-        
-        # Tab 2: Test Suite
-        self.create_test_tab()
-        
-        # Tab 3: Sample Statements
-        self.create_samples_tab()
-        
-        # Tab 4: Documentation
-        self.create_docs_tab()
-        
-    def create_analysis_tab(self):
-        """Create the analysis tab for single statement processing"""
-        frame = ttk.Frame(self.notebook)
-        self.notebook.add(frame, text="📝 Statement Analysis")
-        
-        # Input section
-        input_frame = ttk.LabelFrame(frame, text="Input Statement", padding=10)
-        input_frame.pack(fill=tk.X, padx=10, pady=5)
-        
-        ttk.Label(input_frame, text="Enter a statement:").pack(anchor=tk.W)
-        
-        self.input_text = tk.Text(input_frame, height=3, width=80, font=("Arial", 11))
-        self.input_text.pack(fill=tk.X, pady=5)
-        self.input_text.bind('<Control-Return>', lambda e: self.analyze_statement())
-        
-        # Buttons
-        button_frame = ttk.Frame(input_frame)
-        button_frame.pack(fill=tk.X, pady=5)
-        
-        ttk.Button(button_frame, text="🔍 Analyze", command=self.analyze_statement).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="🗑️ Clear", command=lambda: self.input_text.delete('1.0', tk.END)).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="📋 Load Sample", command=self.load_from_sample).pack(side=tk.LEFT, padx=5)
-        
-        # Results section (Paned window for resizable panels)
-        paned = ttk.PanedWindow(frame, orient=tk.HORIZONTAL)
-        paned.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-        
-        # Left panel: Lexical Analysis
-        lex_frame = ttk.LabelFrame(paned, text="Lexical Analysis - Tokens", padding=5)
-        paned.add(lex_frame, weight=1)
-        
-        # Create treeview for tokens
-        columns = ('Type', 'Value', 'Line', 'Col')
-        self.tokens_tree = ttk.Treeview(lex_frame, columns=columns, height=20, show='headings')
-        
-        for col in columns:
-            self.tokens_tree.column(col, width=80)
-            self.tokens_tree.heading(col, text=col)
-        
-        scrollbar = ttk.Scrollbar(lex_frame, orient=tk.VERTICAL, command=self.tokens_tree.yview)
-        self.tokens_tree.configure(yscroll=scrollbar.set)
-        
-        self.tokens_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
-        # Right panel: Syntactic Analysis
-        syn_frame = ttk.LabelFrame(paned, text="Syntactic Analysis - Parse Tree", padding=5)
-        paned.add(syn_frame, weight=1)
-        
-        self.parse_text = scrolledtext.ScrolledText(syn_frame, height=20, font=("Courier New", 9))
-        self.parse_text.pack(fill=tk.BOTH, expand=True)
-        
-        # Status section
-        status_frame = ttk.LabelFrame(frame, text="Analysis Results", padding=10)
-        status_frame.pack(fill=tk.X, padx=10, pady=5)
-        
-        self.status_label = ttk.Label(status_frame, text="Ready. Enter a statement and click Analyze.", 
-                                     foreground="blue", font=("Arial", 10))
-        self.status_label.pack(anchor=tk.W)
-        
-    def create_test_tab(self):
-        """Create the test suite tab"""
-        frame = ttk.Frame(self.notebook)
-        self.notebook.add(frame, text="🧪 Test Suite")
-        
-        # Button panel
-        button_frame = ttk.LabelFrame(frame, text="Test Options", padding=10)
-        button_frame.pack(fill=tk.X, padx=10, pady=5)
-        
-        ttk.Button(button_frame, text="▶️ Run All Tests", command=self.run_all_tests).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="📊 Run Lexical Tests", command=self.run_lexical_tests).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="🌳 Run Parser Tests", command=self.run_parser_tests).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="💾 Export Results", command=self.export_test_results).pack(side=tk.LEFT, padx=5)
-        
-        # Results display
-        results_frame = ttk.LabelFrame(frame, text="Test Results", padding=5)
-        results_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-        
-        self.test_results_text = scrolledtext.ScrolledText(results_frame, height=25, font=("Courier New", 9))
-        self.test_results_text.pack(fill=tk.BOTH, expand=True)
-        
-        # Configure tags for coloring
-        self.test_results_text.tag_config('pass', foreground='green', font=("Courier New", 9, 'bold'))
-        self.test_results_text.tag_config('fail', foreground='red', font=("Courier New", 9, 'bold'))
-        self.test_results_text.tag_config('header', foreground='darkblue', font=("Courier New", 10, 'bold'))
-        
-    def create_samples_tab(self):
-        """Create the sample statements tab"""
-        frame = ttk.Frame(self.notebook)
-        self.notebook.add(frame, text="📚 Sample Statements")
-        
-        # Sample list with categories
-        list_frame = ttk.LabelFrame(frame, text="Collected Statements by Category", padding=5)
-        list_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-        
-        # Treeview for samples
-        columns = ('Category', 'Statement')
-        self.samples_tree = ttk.Treeview(list_frame, columns=columns, height=25, show='headings')
-        
-        self.samples_tree.column('Category', width=150)
-        self.samples_tree.column('Statement', width=500)
-        
-        self.samples_tree.heading('Category', text='Category')
-        self.samples_tree.heading('Statement', text='Statement')
-        
-        scrollbar = ttk.Scrollbar(list_frame, orient=tk.VERTICAL, command=self.samples_tree.yview)
-        self.samples_tree.configure(yscroll=scrollbar.set)
-        
-        self.samples_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
-        # Bind double-click to load
-        self.samples_tree.bind('<Double-1>', self.load_selected_sample)
-        
-        # Button frame
-        button_frame = ttk.Frame(frame)
-        button_frame.pack(fill=tk.X, padx=10, pady=5)
-        
-        ttk.Button(button_frame, text="📤 Load Selected", command=self.load_selected_sample_btn).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="ℹ️ Statement Info", command=self.show_sample_info).pack(side=tk.LEFT, padx=5)
-        
-    def create_docs_tab(self):
-        """Create documentation and help tab"""
-        frame = ttk.Frame(self.notebook)
-        self.notebook.add(frame, text="📖 Documentation")
-        
-        docs_text = scrolledtext.ScrolledText(frame, font=("Arial", 10), height=30)
-        docs_text.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
-        docs_content = """
-╔════════════════════════════════════════════════════════════════════════════════╗
-║               YAOUNDÉ COMPILER - INTERACTIVE GUI DOCUMENTATION                 ║
-╚════════════════════════════════════════════════════════════════════════════════╝
+        root.title(APP_NAME)
+        root.geometry("1360x900")
+        root.minsize(980, 620)
+        root.configure(bg=BG)
+        self.semantic = SemanticAnalyzer()
+        self.bank = WordBank()
+        self.lang = tk.StringVar(value="en")
+        self.last_output = ""
+        self._style()
+        self._header()
+        self._tabs()
+        root.bind("<Control-Return>", lambda e: self.analyze())
+        self.analyze()
 
-PROJECT OVERVIEW
-================
-This project implements a compiler for analyzing informal urban communication 
-from Yaoundé (Cameroon). The compiler performs lexical analysis (tokenization) 
-and syntactic analysis (parsing) on authentic Yaoundé statements.
+    # ---------------------------------------------------------------- style --
+    def _style(self):
+        st = ttk.Style()
+        st.theme_use("clam")
+        st.configure(".", font=(FONT, 10), background=BG, foreground=INK)
+        st.configure("TFrame", background=BG)
+        st.configure("TNotebook", background=BG, borderwidth=0, tabmargins=(22, 10, 22, 0))
+        st.configure("TNotebook.Tab", font=(FONT, 10, "bold"), padding=(20, 10), background="#E1E7F1",
+                     foreground=MUTED, borderwidth=0)
+        st.map("TNotebook.Tab", background=[("selected", CARD)], foreground=[("selected", GREEN)])
+        st.configure("Treeview", font=(FONT, 10), rowheight=28, background=CARD, fieldbackground=CARD,
+                     borderwidth=0, foreground=INK)
+        st.configure("Treeview.Heading", font=(FONT, 9, "bold"), background="#EDF1F8", foreground=MUTED,
+                     borderwidth=0, padding=(8, 8))
+        st.map("Treeview", background=[("selected", "#CDEEE2")], foreground=[("selected", INK)])
+        st.configure("Vertical.TScrollbar", background="#D3DAE8", troughcolor=BG, borderwidth=0, arrowsize=12)
+        st.configure("TCombobox", padding=6)
 
-FEATURES
-========
-1. SINGLE STATEMENT ANALYSIS
-   - Enter any statement and see immediate lexical and syntactic analysis
-   - View token breakdown with types and positions
-   - See parse tree visualization
-   - Real-time feedback on parsing success
+    def _header(self):
+        head = tk.Frame(self.root, bg=NAVY)
+        head.pack(fill=tk.X)
+        bar = tk.Frame(head, bg=NAVY)
+        bar.pack(fill=tk.X, padx=30, pady=(16, 14))
+        logo = tk.Canvas(bar, width=54, height=54, bg=NAVY, highlightthickness=0)
+        logo.pack(side=tk.LEFT, padx=(0, 16))
+        round_rect(logo, 1, 1, 53, 53, 14, fill=GREEN, outline=GREEN)
+        logo.create_text(27, 28, text="A", font=(FONT, 26, "bold"), fill="white")
+        round_rect(logo, 34, 6, 50, 14, 4, fill=YELLOW, outline=YELLOW)
+        title = tk.Frame(bar, bg=NAVY)
+        title.pack(side=tk.LEFT)
+        row = tk.Frame(title, bg=NAVY)
+        row.pack(anchor="w")
+        tk.Label(row, text="AFJEN", font=(FONT, 24, "bold"), fg=YELLOW, bg=NAVY).pack(side=tk.LEFT)
+        tk.Label(row, text=" Compiler", font=(FONT, 24), fg="white", bg=NAVY).pack(side=tk.LEFT)
+        tk.Label(title, text="Understand Yaoundé street speech  ·  Pidgin  →  English / Français",
+                 font=(FONT, 10), fg="#9FB0D3", bg=NAVY).pack(anchor="w")
+        right = tk.Frame(bar, bg=NAVY)
+        right.pack(side=tk.RIGHT)
+        self.header_stats = tk.Label(right, text="", font=(FONT, 10), fg="#9FB0D3", bg=NAVY, justify=tk.RIGHT)
+        self.header_stats.pack(anchor="e")
+        flag = tk.Frame(head, height=5)
+        flag.pack(fill=tk.X)
+        for colour in (GREEN, RED, YELLOW):
+            tk.Frame(flag, bg=colour, height=5).pack(side=tk.LEFT, expand=True, fill=tk.X)
+        self._refresh_header()
 
-2. TEST SUITE MANAGEMENT
-   - Run all 15 collected statements at once
-   - Run only lexical tests or parser tests
-   - View detailed test results with pass/fail indicators
-   - Export results to file for documentation
+    def _refresh_header(self):
+        self.header_stats.configure(
+            text=f"{len(DICTIONARY)} dictionary words   ·   {self.bank.total_unique} words collected from your text")
 
-3. SAMPLE STATEMENTS
-   - Browse all 15 authentic Yaoundé statements
-   - Organized by 6 categories (Taxi, Internet, Market, Security, Fuel, University)
-   - Double-click any statement to load it for analysis
-   - See statement metadata and context
+    def _tabs(self):
+        self.nb = ttk.Notebook(self.root)
+        self.nb.pack(fill=tk.BOTH, expand=True, pady=(4, 0))
+        self._tab_translate()
+        self._tab_dictionary()
+        self._tab_samples()
+        self._tab_tests()
+        self._tab_grammar()
+        self._tab_about()
 
-4. DOCUMENTATION & HELP
-   - Access this guide within the GUI
-   - Reference information on token types and grammar
+    def _card(self, parent, title=None, **pack):
+        outer = tk.Frame(parent, bg=LINE)
+        outer.pack(**pack)
+        card = tk.Frame(outer, bg=CARD)
+        card.pack(fill=tk.BOTH, expand=True, padx=1, pady=1)
+        if title:
+            tk.Label(card, text=title.upper(), font=(FONT, 8, "bold"), fg=MUTED, bg=CARD).pack(
+                anchor="w", padx=18, pady=(14, 6))
+        return card
 
-HOW TO USE
-==========
+    def _scrolled_text(self, parent, **kw):
+        frame = tk.Frame(parent, bg=CARD)
+        text = tk.Text(frame, relief=tk.FLAT, highlightthickness=0, **kw)
+        sb = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text.yview)
+        text.configure(yscrollcommand=sb.set)
+        sb.pack(side=tk.RIGHT, fill=tk.Y)
+        text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        return frame, text
 
-ANALYZING A SINGLE STATEMENT:
-1. Go to "Statement Analysis" tab
-2. Enter your statement in the text field (or click "Load Sample")
-3. Click "Analyze" or press Ctrl+Enter
-4. View token breakdown on the left
-5. View parse tree on the right
-6. Check status at bottom for success/failure
+    # ------------------------------------------------------ tab: translate --
+    def _tab_translate(self):
+        tab = ttk.Frame(self.nb)
+        self.nb.add(tab, text="  ✦  Translate  ")
+        canvas = tk.Canvas(tab, bg=BG, highlightthickness=0)
+        vbar = ttk.Scrollbar(tab, orient=tk.VERTICAL, command=canvas.yview)
+        canvas.configure(yscrollcommand=vbar.set)
+        vbar.pack(side=tk.RIGHT, fill=tk.Y)
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        wrap = tk.Frame(canvas, bg=BG)
+        win = canvas.create_window((0, 0), window=wrap, anchor="nw")
+        wrap.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.bind("<Configure>", lambda e: canvas.itemconfigure(win, width=e.width))
+        canvas.bind_all("<MouseWheel>", lambda e: canvas.yview_scroll(int(-e.delta / 120), "units")
+                        if self.nb.index(self.nb.select()) == 0 else None)
+        pad = tk.Frame(wrap, bg=BG)
+        pad.pack(fill=tk.BOTH, expand=True, padx=26, pady=(16, 20))
 
-RUNNING TESTS:
-1. Go to "Test Suite" tab
-2. Click "Run All Tests" to test all 15 statements
-3. Click "Run Lexical Tests" to test tokenization only
-4. Click "Run Parser Tests" to test parsing only
-5. View detailed results with color-coded pass/fail
-6. Click "Export Results" to save test output
+        # -- step 1: input
+        card = self._card(pad, "1 · Type or paste your text  (any length, any words)", fill=tk.X)
+        box, self.input = self._scrolled_text(card, height=3, font=(FONT, 14), bg="#F6F8FC", fg=INK,
+                                              insertbackground=GREEN, padx=14, pady=12, wrap=tk.WORD)
+        box.pack(fill=tk.X, padx=18, pady=(0, 8))
+        self.input.insert("1.0", "Brother, drop me na at Carrefour Yaoundé, the traffic done tire me small")
+        self.input.bind("<KeyRelease>", lambda e: self._count_words())
+        row = tk.Frame(card, bg=CARD)
+        row.pack(fill=tk.X, padx=18, pady=(0, 6))
+        RoundButton(row, "Translate & Analyze", self.analyze).pack(side=tk.LEFT)
+        RoundButton(row, "Clear", self.clear, bg="#E7ECF5", hover="#D8DFEC", fg=INK, bold=False).pack(
+            side=tk.LEFT, padx=10)
+        RoundButton(row, "Paste", self.paste, bg="#E7ECF5", hover="#D8DFEC", fg=INK, bold=False).pack(side=tk.LEFT)
+        self.count_label = tk.Label(row, text="", font=(FONT, 10), fg=MUTED, bg=CARD)
+        self.count_label.pack(side=tk.RIGHT)
+        chips = tk.Frame(card, bg=CARD)
+        chips.pack(fill=tk.X, padx=18, pady=(4, 16))
+        tk.Label(chips, text="Try one:", font=(FONT, 9), fg=MUTED, bg=CARD).pack(side=tk.LEFT, padx=(0, 8))
+        for ex in EXAMPLES:
+            RoundButton(chips, ex if len(ex) < 34 else ex[:32] + "…", lambda t=ex: self.load(t), bg="#EAF6F1",
+                        hover="#D2EEE3", fg=GREEN_D, size=9, bold=False, padx=12, pady=6, radius=10).pack(
+                side=tk.LEFT, padx=(0, 8))
+        self._count_words()
 
-BROWSING SAMPLES:
-1. Go to "Sample Statements" tab
-2. Browse the list organized by category
-3. Double-click any statement to load it
-4. Automatically switches to "Statement Analysis" tab
-5. Shows the selected statement ready for analysis
+        # -- step 2: translation
+        card = self._card(pad, None, fill=tk.X, pady=(14, 0))
+        top = tk.Frame(card, bg=CARD)
+        top.pack(fill=tk.X, padx=18, pady=(14, 4))
+        tk.Label(top, text="2 · TRANSLATION", font=(FONT, 8, "bold"), fg=MUTED, bg=CARD).pack(side=tk.LEFT)
+        self.badge = tk.Label(top, text="", font=(FONT, 9, "bold"), padx=10, pady=2)
+        self.badge.pack(side=tk.LEFT, padx=12)
+        seg = tk.Frame(top, bg="#E3E9F3")
+        seg.pack(side=tk.RIGHT)
+        self.lang_buttons = {}
+        for code, label in (("en", "English"), ("fr", "Français")):
+            b = tk.Label(seg, text=label, font=(FONT, 10, "bold"), padx=18, pady=6, cursor="hand2")
+            b.pack(side=tk.LEFT, padx=2, pady=2)
+            b.bind("<Button-1>", lambda e, c=code: self.set_lang(c))
+            self.lang_buttons[code] = b
+        self._paint_lang()
+        copy = tk.Label(top, text="Copy", font=(FONT, 10, "underline"), fg=GREEN, bg=CARD, cursor="hand2")
+        copy.pack(side=tk.RIGHT, padx=16)
+        copy.bind("<Button-1>", lambda e: self.copy_translation())
+        box, self.output = self._scrolled_text(card, height=2, font=(FONT, 16), bg=CARD, fg=INK, padx=14, pady=6,
+                                               wrap=tk.WORD)
+        box.pack(fill=tk.X, padx=18, pady=(0, 4))
+        self.output.tag_configure("unk", foreground="#B25E00", underline=True)
+        self.note = tk.Label(card, text="", font=(FONT, 9), fg=MUTED, bg=CARD, anchor="w", justify=tk.LEFT,
+                             wraplength=1180)
+        self.note.pack(fill=tk.X, padx=18, pady=(0, 14))
 
-TOKEN TYPES (15 CATEGORIES)
-==========================
-NOUN          - Common or proper nouns (man, woman, Yaoundé)
-VERB          - Action verbs (go, come, see)
-PIDGIN_VERB   - Pidgin-specific verbs (sabi = know)
-PRONOUN       - Personal pronouns (I, you, him)
-ARTICLE       - Articles and determiners (a, the, this)
-PREPOSITION   - Position/direction words (in, on, at)
-ADJECTIVE     - Descriptive words (big, small, red)
-ADVERB        - Manner/time modifiers (fast, now, here)
-INTERJECTION  - Exclamations (hey, wow, ouch)
-SLANG         - Urban slang (go-slow = traffic, sister = young woman)
-CODE_MIXED    - French-English-Pidgin phrases (mon Dieu = my God)
-NUMBER        - Numeric values (1, 2, 100)
-PROPER_NOUN   - Named entities (Yaoundé, Nigeria, Obama)
-CONNECTOR     - Conjunctions (and, but, or)
-QUESTION_WORD - Interrogatives (what, who, where)
+        # -- step 3: analysis
+        tk.Label(pad, text="3 · HOW AFJEN READ IT", font=(FONT, 8, "bold"), fg=MUTED, bg=BG).pack(
+            anchor="w", pady=(16, 6))
+        stats = self._card(pad, None, fill=tk.X)
+        srow = tk.Frame(stats, bg=CARD)
+        srow.pack(fill=tk.X, padx=18, pady=14)
+        self.donut = Donut(srow)
+        self.donut.pack(side=tk.LEFT)
+        info = tk.Frame(srow, bg=CARD)
+        info.pack(side=tk.LEFT, padx=20, fill=tk.X, expand=True)
+        self.pill = tk.Label(info, text="", font=(FONT, 11, "bold"), padx=14, pady=5)
+        self.pill.pack(anchor="w")
+        self.detail = tk.Label(info, text="", font=(FONT, 10), fg=MUTED, bg=CARD, anchor="w", justify=tk.LEFT,
+                               wraplength=760)
+        self.detail.pack(anchor="w", pady=(8, 0))
+        tiles = tk.Frame(srow, bg=CARD)
+        tiles.pack(side=tk.RIGHT)
+        self.tiles = {}
+        for key, label in (("words", "words"), ("sentences", "sentences"), ("category", "topic"),
+                           ("intent", "intent")):
+            t = tk.Frame(tiles, bg="#F4F7FC")
+            t.pack(side=tk.LEFT, padx=5)
+            v = tk.Label(t, text="–", font=(FONT, 16, "bold"), fg=GREEN_D, bg="#F4F7FC")
+            v.pack(padx=18, pady=(10, 0))
+            tk.Label(t, text=label, font=(FONT, 9), fg=MUTED, bg="#F4F7FC").pack(pady=(0, 10))
+            self.tiles[key] = v
 
-PIDGIN ASPECT SYSTEM
-====================
-The parser recognizes key Pidgin aspect markers:
-- dey    = Progressive (currently doing)
-- done   = Perfective (completed)
-- fit    = Potential (can/able to)
-- go     = Future (will)
+        body = tk.Frame(pad, bg=BG)
+        body.pack(fill=tk.BOTH, expand=True, pady=(12, 0))
+        body.columnconfigure(0, weight=5, uniform="c")
+        body.columnconfigure(1, weight=6, uniform="c")
+        left = tk.Frame(body, bg=BG)
+        left.grid(row=0, column=0, sticky="nsew", padx=(0, 8))
+        c1 = self._card(left, "Words found (lexical analysis)", fill=tk.BOTH, expand=True)
+        cols = ("Word", "Type", "Pos")
+        self.tokens = ttk.Treeview(c1, columns=cols, show="headings", height=12)
+        for col, w in zip(cols, (150, 150, 60)):
+            self.tokens.heading(col, text=col)
+            self.tokens.column(col, width=w, anchor="w")
+        for name, colour in TOKEN_COLORS.items():
+            self.tokens.tag_configure(name, background=colour)
+        sb = ttk.Scrollbar(c1, orient=tk.VERTICAL, command=self.tokens.yview)
+        self.tokens.configure(yscrollcommand=sb.set)
+        sb.pack(side=tk.RIGHT, fill=tk.Y, pady=(0, 14), padx=(0, 6))
+        self.tokens.pack(fill=tk.BOTH, expand=True, padx=(14, 0), pady=(0, 14))
 
-Example: "I dey work" = "I am working"
-         "He done leave" = "He has left"
+        right = tk.Frame(body, bg=BG)
+        right.grid(row=0, column=1, sticky="nsew", padx=(8, 0))
+        c2 = self._card(right, "Sentence structure (syntactic analysis)", fill=tk.BOTH, expand=True)
+        box, self.tree_text = self._scrolled_text(c2, height=12, font=(MONO, 10), bg="#FAFBFE", fg=INK, padx=14,
+                                                  pady=10, wrap=tk.NONE)
+        box.pack(fill=tk.BOTH, expand=True, padx=(14, 6), pady=(0, 14))
+        self.tree_text.tag_configure("node", foreground=NAVY2)
+        self.tree_text.tag_configure("leaf", foreground=GREEN_D, font=(MONO, 10, "bold"))
+        self.tree_text.tag_configure("sent", foreground=INK, font=(FONT, 10, "bold"))
+        self.tree_text.tag_configure("ok", foreground=OK_FG, font=(FONT, 9, "bold"))
+        self.tree_text.tag_configure("frag", foreground=MID_FG, font=(FONT, 9, "italic"))
 
-PARSING STRATEGY
-================
-The parser uses a "lenient" approach that:
-✓ Accepts valid phrase patterns
-✓ Handles multi-clause statements
-✓ Recovers from missing auxiliaries
-✓ Supports code-mixing (French + English + Pidgin)
-✓ Works with non-standard syntax
+    # --------------------------------------------------------- input helpers --
+    def _count_words(self):
+        text = self.input.get("1.0", tk.END)
+        n = len(re.findall(r"[A-Za-zÀ-ÿ'’-]+", text))
+        self.count_label.configure(text=f"{n} word{'s' if n != 1 else ''}")
 
-SUCCESS = Statement parsed, not ALL tokens consumed
-(Handles ellipsis and informal speech patterns)
+    def clear(self):
+        self.input.delete("1.0", tk.END)
+        self._count_words()
+        self.input.focus_set()
 
-EXAMPLE STATEMENTS
-==================
-Taxi Category:
-  "The light done cut since morning oh"
-  "Go-slow on this road, man"
-  "Brother, carry me to the market"
-
-Internet Category:
-  "They dey cut the light every day"
-  "The network done fail since morning"
-  "I no get credit for call you"
-
-Market Category:
-  "This money no be enough"
-  "Sister, this thing done cost me plenty"
-  "The goods come yesterday self"
-
-PROJECT STATISTICS
-==================
-Total Statements Collected: 15
-Total Tokens Extracted: 245
-Token Types: 15
-Parsing Success Rate: 100% (15/15)
-Production Rules: 15
-
-Categories:
-- Taxi & Commuting: 3 statements
-- Internet & Electricity: 3 statements
-- Market & Business: 3 statements
-- Security & Weather: 2 statements
-- Fuel & Transactions: 2 statements
-- University & General: 2 statements
-
-TROUBLESHOOTING
-===============
-Q: What if parsing fails?
-A: The statement may have unusual syntax. Check token list to verify recognition.
-
-Q: Why are some words classified as CODE_MIXED?
-A: Multi-word French or specialized phrases are treated as single tokens.
-
-Q: Can I analyze statements not in the samples?
-A: Yes! Type or paste any statement and click Analyze. The compiler will 
-   tokenize and parse it using the learned grammar patterns.
-
-Q: How do I save my analysis?
-A: Use Export Results to save test runs. Use screenshots for individual analyses.
-
-KEYBOARD SHORTCUTS
-==================
-Ctrl+Enter  - Analyze statement (in input field)
-Tab         - Switch between GUI tabs
-Double-Click - Load sample statement
-
-ABOUT
-=====
-Project:     Yaoundé Compiler Construction
-Course:      CS4110 - Compiler Construction
-Institution: University of Yaoundé 1
-Date:        September 2026
-Language:    Python 3.7+
-GUI:         Tkinter (built-in, no external dependencies)
-
-For more information, see:
-- FINAL_REPORT.md (30-page comprehensive report)
-- PRESENTATION_GUIDE.md (exam presentation outline)
-- README.md (project overview)
-
-"""
-        docs_text.insert('1.0', docs_content)
-        docs_text.configure(state=tk.DISABLED)
-        
-    def load_sample_statements(self):
-        """Load sample statements from file"""
-        samples_file = os.path.join(os.path.dirname(__file__), 'data', 'collected_statements.txt')
-        
-        self.samples_data = []
-        
-        if os.path.exists(samples_file):
-            with open(samples_file, 'r', encoding='utf-8') as f:
-                content = f.read()
-                
-            current_category = ""
-            for line in content.split('\n'):
-                line = line.strip()
-                if not line:
-                    continue
-                if line.startswith('##') or line.startswith('---'):
-                    current_category = line.replace('#', '').replace('-', '').strip()
-                elif line and not line.startswith('Category:'):
-                    self.samples_data.append((current_category, line))
-                    if hasattr(self, 'samples_tree'):
-                        self.samples_tree.insert('', tk.END, values=(current_category, line))
-    
-    def analyze_statement(self):
-        """Analyze the statement in input field"""
-        statement = self.input_text.get('1.0', tk.END).strip()
-        
-        if not statement:
-            messagebox.showwarning("Input Required", "Please enter a statement to analyze.")
-            return
-        
+    def paste(self):
         try:
-            # Lexical Analysis
-            tokens = self.lexical_analyzer.tokenize(statement)
-            
-            # Clear previous results
-            for item in self.tokens_tree.get_children():
-                self.tokens_tree.delete(item)
-            
-            # Insert tokens
-            for token in tokens[:-1]:  # Skip EOF
-                self.tokens_tree.insert('', tk.END, values=(
-                    token.type.name,
-                    token.value,
-                    token.line,
-                    token.column
-                ))
-            
-            # Syntactic Analysis
-            tree, success, _tokens, diagnostics = parse_statement_detailed(statement)
-            
-            # Clear parse text
-            self.parse_text.delete('1.0', tk.END)
-            
-            if success:
-                self.parse_text.insert('1.0', "✓ PARSING SUCCESSFUL\n\n")
-                self.parse_text.insert(tk.END, "Parse Tree:\n" + "─" * 40 + "\n")
-                if tree:
-                    self.parse_text.insert(tk.END, tree.compact().format_tree())
+            clip = self.root.clipboard_get()
+        except tk.TclError:
+            return
+        self.input.delete("1.0", tk.END)
+        self.input.insert("1.0", clip)
+        self._count_words()
+        self.analyze()
+
+    def load(self, text):
+        self.input.delete("1.0", tk.END)
+        self.input.insert("1.0", text)
+        self._count_words()
+        self.analyze()
+
+    def _paint_lang(self):
+        for code, b in self.lang_buttons.items():
+            active = self.lang.get() == code
+            b.configure(bg=GREEN if active else "#E3E9F3", fg="white" if active else MUTED)
+
+    def set_lang(self, code):
+        self.lang.set(code)
+        self._paint_lang()
+        self.analyze()
+
+    def copy_translation(self):
+        self.root.clipboard_clear()
+        self.root.clipboard_append(self.last_output)
+        self.note.configure(text="✔ Copied to the clipboard.")
+
+    # ------------------------------------------------------------- analysis --
+    def _translate_all(self, text, lang):
+        """Translate any text: verified statements first, rule engine for the rest."""
+        whole = translate(text, lang)
+        if whole[1] == "verified":
+            return whole[0], "verified", []
+        pieces, methods, unknown = [], [], []
+        for line in [ln for ln in text.splitlines() if ln.strip()]:
+            hit = translate(line, lang)
+            if hit[1] == "verified":
+                pieces.append(hit[0])
+                methods.append("verified")
+                continue
+            for sentence in re.split(r"(?<=[.!?])\s+", line.strip()):
+                if not sentence.strip():
+                    continue
+                r = translate_ex(sentence, lang)
+                pieces.append(r["text"])
+                methods.append(r["method"])
+                unknown += r["unknown"]
+        method = "verified" if methods and all(m == "verified" for m in methods) else (
+            "partial" if "verified" in methods else "automatic")
+        return " ".join(pieces), method, sorted(set(unknown))
+
+    def analyze(self):
+        text = self.input.get("1.0", tk.END).strip()
+        if not text:
+            self.note.configure(text="Type or paste some text above, then press Translate & Analyze.")
+            return
+        lang = self.lang.get()
+        out, method, unknown = self._translate_all(text, lang)
+        self.last_output = out
+        self.output.configure(state=tk.NORMAL)
+        self.output.delete("1.0", tk.END)
+        self.output.insert("1.0", out)
+        self.output.configure(height=max(2, min(9, len(out) // 95 + out.count(chr(10)) + 1)))
+        if method == "verified":
+            self.badge.configure(text="✔ Verified translation", bg=OK_BG, fg=OK_FG)
+            note = "Hand-checked translation of collected statements."
+        elif method == "partial":
+            self.badge.configure(text="◐ Partly verified", bg=MID_BG, fg=MID_FG)
+            note = "Some sentences are hand-checked, the rest was produced by the rule engine."
+        else:
+            self.badge.configure(text="⚙ Automatic translation", bg=MID_BG, fg=MID_FG)
+            note = "Produced by AFJEN's rule engine: dey → is/are -ing, done → has/have, go → will, no fit → cannot."
+        if unknown:
+            note += f"   New words kept as written: {', '.join(unknown[:12])}{'…' if len(unknown) > 12 else ''}."
+        self.note.configure(text=note)
+
+        result = analyze_robust(text)
+        self._show_tokens(result)
+        self._show_structure(result)
+        words = [t.value for t in result["tokens"]
+                 if t.type not in (TokenType.PUNCTUATION, TokenType.CONNECTOR) or t.value.lower() in ("and", "but", "or")]
+        self.bank.record(words)
+        self._refresh_header()
+
+        cov = result["coverage"]
+        n_sent = len(result["sentences"])
+        if all(s["kind"] == "full" for s in result["sentences"]):
+            self.pill.configure(text="✔  Fits the AFJEN grammar perfectly", bg=OK_BG, fg=OK_FG)
+            self.donut.set(100, GREEN)
+            self.detail.configure(text="Every sentence has a complete LL(1) parse tree.")
+        elif cov >= 50:
+            self.pill.configure(text=f"◐  {result['matched']} of {result['total']} clauses fit the grammar",
+                                bg=MID_BG, fg=MID_FG)
+            self.donut.set(cov, "#E0A100")
+            self.detail.configure(text="The rest is informal speech - it is still translated and analysed word by word.")
+        else:
+            self.pill.configure(text="◔  Informal speech - analysed word by word", bg=INF_BG, fg=INF_FG)
+            self.donut.set(cov, "#4C6FD1")
+            self.detail.configure(text="This wording is looser than the strict grammar, so AFJEN read it as fragments.")
+        sem = self.semantic.analyze(text)
+        self.tiles["words"].configure(text=str(len(words)))
+        self.tiles["sentences"].configure(text=str(n_sent))
+        self.tiles["category"].configure(text=sem["category"])
+        self.tiles["intent"].configure(text=sem["intent"])
+        self.dict_refresh_counts()
+
+    def _show_tokens(self, result):
+        self.tokens.delete(*self.tokens.get_children())
+        for tok in result["tokens"]:
+            self.tokens.insert("", tk.END, values=(tok.value, tok.type.name, f"{tok.line}:{tok.column}"),
+                               tags=(tok.type.name,))
+
+    def _show_structure(self, result):
+        t = self.tree_text
+        t.configure(state=tk.NORMAL)
+        t.delete("1.0", tk.END)
+        for i, s in enumerate(result["sentences"], 1):
+            t.insert(tk.END, f"Sentence {i}: ", "sent")
+            t.insert(tk.END, s["text"][:90] + ("…" if len(s["text"]) > 90 else "") + "\n", "node")
+            if s["kind"] == "full":
+                t.insert(tk.END, "  ✔ complete parse\n", "ok")
+            elif s["kind"] == "partial":
+                t.insert(tk.END, f"  ◐ {s['matched']} of {s['total']} clauses parsed\n", "frag")
             else:
-                self.parse_text.insert('1.0', "✗ PARSING FAILED (statement rejected by the LL(1) grammar)\n\n" + "\n".join(diagnostics))
-            
-            # Update status
-            status_msg = f"✓ Analysis Complete: {len(tokens)-1} tokens extracted, Parse: {'SUCCESS' if success else 'FAILED'}"
-            self.status_label.configure(text=status_msg, foreground="green" if success else "red")
-            
-        except Exception as e:
-            messagebox.showerror("Analysis Error", f"Error during analysis:\n{str(e)}")
-            self.status_label.configure(text="❌ Analysis Error", foreground="red")
-    
-    def load_from_sample(self):
-        """Load a random sample statement"""
-        if self.samples_data:
-            import random
-            category, statement = random.choice(self.samples_data)
-            self.input_text.delete('1.0', tk.END)
-            self.input_text.insert('1.0', statement)
-            self.status_label.configure(text=f"Loaded from {category}", foreground="blue")
-    
-    def load_selected_sample(self, event):
-        """Load selected sample and switch tab"""
-        selection = self.samples_tree.selection()
-        if selection:
-            item = selection[0]
-            values = self.samples_tree.item(item)['values']
-            statement = values[1]
-            
-            # Switch to analysis tab
-            self.notebook.select(0)
-            
-            # Load statement
-            self.input_text.delete('1.0', tk.END)
-            self.input_text.insert('1.0', statement)
-            
-            # Analyze immediately
-            self.root.after(100, self.analyze_statement)
-    
-    def load_selected_sample_btn(self):
-        """Button callback for loading selected sample"""
-        selection = self.samples_tree.selection()
-        if selection:
-            self.load_selected_sample(None)
-        else:
-            messagebox.showwarning("No Selection", "Please select a statement first.")
-    
-    def show_sample_info(self):
-        """Show information about selected sample"""
-        selection = self.samples_tree.selection()
-        if selection:
-            item = selection[0]
-            values = self.samples_tree.item(item)['values']
-            category, statement = values[0], values[1]
-            
-            # Analyze to get stats
-            tokens = self.lexical_analyzer.tokenize(statement)
-            tree, success, _ = parse_statement(statement)
-            
-            info = f"""
-Statement Information
-═════════════════════
+                t.insert(tk.END, "  ◔ informal - read as fragments\n", "frag")
+            for tree in s["trees"]:
+                self._draw_tree(tree, 1)
+            for words, _err in s["fragments"]:
+                t.insert(tk.END, f"    fragment: “{words}”\n", "frag")
+            t.insert(tk.END, "\n")
+        t.configure(state=tk.DISABLED)
 
-Category: {category}
-Statement: {statement}
-
-Analysis Results:
-─────────────────
-Tokens: {len(tokens) - 1}
-Parse Success: {'✓ Yes' if success else '✗ No'}
-
-Token Types Found:
-"""
-            token_types = {}
-            for token in tokens[:-1]:
-                t_type = token.type.name
-                token_types[t_type] = token_types.get(t_type, 0) + 1
-            
-            for t_type, count in sorted(token_types.items()):
-                info += f"\n  {t_type}: {count}"
-            
-            messagebox.showinfo("Statement Information", info)
+    def _draw_tree(self, node, depth):
+        t, pad = self.tree_text, "   " * depth
+        if node.token is not None:
+            t.insert(tk.END, f"{pad}└─ ", "node")
+            t.insert(tk.END, node.token.value, "leaf")
+            t.insert(tk.END, f"  {node.rule}\n", "node")
         else:
-            messagebox.showwarning("No Selection", "Please select a statement first.")
-    
-    def run_all_tests(self):
-        """Run all tests"""
-        self.test_results_text.delete('1.0', tk.END)
-        self.test_results_text.insert('1.0', "Running all tests...\n\n", 'header')
-        self.root.update()
-        
-        self.test_runner.run_all_tests()
-        self.display_test_results()
-    
-    def run_lexical_tests(self):
-        """Run only lexical tests"""
-        self.test_results_text.delete('1.0', tk.END)
-        self.test_results_text.insert('1.0', "Running lexical analysis tests...\n\n", 'header')
-        self.root.update()
-        
-        self.test_runner.run_lexical_test()
-        self.display_test_results()
-    
-    def run_parser_tests(self):
-        """Run only parser tests"""
-        self.test_results_text.delete('1.0', tk.END)
-        self.test_results_text.insert('1.0', "Running parser tests...\n\n", 'header')
-        self.root.update()
-        
-        self.test_runner.run_syntactic_test()
-        self.display_test_results()
-    
-    def display_test_results(self):
-        """Display test results from file"""
-        report_file = os.path.join(os.path.dirname(__file__), 'analysis', 'test_report.txt')
-        
-        if os.path.exists(report_file):
-            with open(report_file, 'r', encoding='utf-8') as f:
-                content = f.read()
-            
-            self.test_results_text.delete('1.0', tk.END)
-            
-            # Color-code output
-            for line in content.split('\n'):
-                if 'PASSED' in line or '✓' in line:
-                    self.test_results_text.insert(tk.END, line + '\n', 'pass')
-                elif 'FAILED' in line or '✗' in line:
-                    self.test_results_text.insert(tk.END, line + '\n', 'fail')
-                elif '═' in line or '─' in line or line.startswith('Test Results'):
-                    self.test_results_text.insert(tk.END, line + '\n', 'header')
-                else:
-                    self.test_results_text.insert(tk.END, line + '\n')
-    
-    def export_test_results(self):
-        """Export test results to file"""
-        report_file = os.path.join(os.path.dirname(__file__), 'analysis', 'test_report.txt')
-        
-        if os.path.exists(report_file):
-            save_path = filedialog.asksaveasfilename(
-                defaultextension=".txt",
-                filetypes=[("Text files", "*.txt"), ("All files", "*.*")],
-                initialfile=f"test_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-            )
-            
-            if save_path:
-                import shutil
-                shutil.copy(report_file, save_path)
-                messagebox.showinfo("Export Successful", f"Test results exported to:\n{save_path}")
-        else:
-            messagebox.showwarning("No Results", "Run tests first to export results.")
+            t.insert(tk.END, f"{pad}▾ {node.rule}\n", "node")
+            for child in node.children:
+                self._draw_tree(child, depth + 1)
+
+    # ------------------------------------------------------ tab: dictionary --
+    def _tab_dictionary(self):
+        tab = ttk.Frame(self.nb)
+        self.nb.add(tab, text="  ☰  Dictionary  ")
+        wrap = tk.Frame(tab, bg=BG)
+        wrap.pack(fill=tk.BOTH, expand=True, padx=26, pady=16)
+        top = tk.Frame(wrap, bg=BG)
+        top.pack(fill=tk.X, pady=(0, 10))
+        self.dict_count = tk.Label(top, text="", font=(FONT, 12, "bold"), fg=INK, bg=BG)
+        self.dict_count.pack(side=tk.LEFT)
+        self.search = tk.StringVar()
+        self.search.trace_add("write", lambda *a: self._fill_dictionary())
+        entry = tk.Entry(top, textvariable=self.search, font=(FONT, 12), relief=tk.FLAT, bg=CARD, fg=INK,
+                         highlightthickness=1, highlightbackground=LINE, highlightcolor=GREEN, width=32,
+                         insertbackground=GREEN)
+        entry.pack(side=tk.RIGHT, ipady=7)
+        tk.Label(top, text="Search  ", font=(FONT, 10), fg=MUTED, bg=BG).pack(side=tk.RIGHT)
+        card = self._card(wrap, None, fill=tk.BOTH, expand=True)
+        cols = ("Word", "Type", "English", "Français")
+        self.dict_tree = ttk.Treeview(card, columns=cols, show="headings")
+        for col, w in zip(cols, (170, 140, 300, 300)):
+            self.dict_tree.heading(col, text=col)
+            self.dict_tree.column(col, width=w, anchor="w")
+        self.dict_tree.tag_configure("odd", background="#F6F9FD")
+        sb = ttk.Scrollbar(card, orient=tk.VERTICAL, command=self.dict_tree.yview)
+        self.dict_tree.configure(yscrollcommand=sb.set)
+        sb.pack(side=tk.RIGHT, fill=tk.Y)
+        self.dict_tree.pack(fill=tk.BOTH, expand=True)
+        self.collected = tk.Label(wrap, text="", font=(FONT, 10), fg=MUTED, bg=BG, anchor="w", justify=tk.LEFT,
+                                  wraplength=1200)
+        self.collected.pack(fill=tk.X, pady=(10, 0))
+        self._fill_dictionary()
+
+    def _fill_dictionary(self):
+        q = self.search.get().strip().lower()
+        self.dict_tree.delete(*self.dict_tree.get_children())
+        shown = 0
+        for i, row in enumerate(DICTIONARY):
+            if q and not any(q in str(c).lower() for c in row):
+                continue
+            self.dict_tree.insert("", tk.END, values=row, tags=("odd",) if i % 2 else ())
+            shown += 1
+        self.dict_count.configure(text=f"{shown} of {len(DICTIONARY)} words")
+        self.dict_refresh_counts()
+
+    def dict_refresh_counts(self):
+        if not hasattr(self, "collected"):
+            return
+        unk = self.bank.unknown_words
+        msg = f"Word bank: {self.bank.total_unique} different words collected from the text you analysed"
+        msg += f"  ({len(unk)} new to the dictionary: {', '.join(unk[:15])}{'…' if len(unk) > 15 else ''})" if unk else "."
+        self.collected.configure(text=msg)
+
+    # --------------------------------------------------------- tab: samples --
+    def _tab_samples(self):
+        tab = ttk.Frame(self.nb)
+        self.nb.add(tab, text="  ❝  Collected Statements  ")
+        wrap = tk.Frame(tab, bg=BG)
+        wrap.pack(fill=tk.BOTH, expand=True, padx=26, pady=16)
+        tk.Label(wrap, text="The 15 statements collected in Yaoundé, with verified translations. Double-click one to analyse it.",
+                 font=(FONT, 10), fg=MUTED, bg=BG).pack(anchor="w", pady=(0, 8))
+        card = self._card(wrap, None, fill=tk.BOTH, expand=True)
+        cols = ("#", "Category", "Pidgin", "English", "Français")
+        self.samples = ttk.Treeview(card, columns=cols, show="headings")
+        for col, w in zip(cols, (36, 150, 330, 330, 330)):
+            self.samples.heading(col, text=col)
+            self.samples.column(col, width=w, anchor="w")
+        self.samples.tag_configure("odd", background="#F6F9FD")
+        for cat, idxs in CATEGORIES:
+            for i in idxs:
+                v = VERIFIED[SAMPLES[i]]
+                self.samples.insert("", tk.END, values=(i + 1, cat, SAMPLES[i], v["en"], v["fr"]),
+                                    tags=("odd",) if i % 2 else ())
+        sb = ttk.Scrollbar(card, orient=tk.VERTICAL, command=self.samples.yview)
+        self.samples.configure(yscrollcommand=sb.set)
+        sb.pack(side=tk.RIGHT, fill=tk.Y)
+        self.samples.pack(fill=tk.BOTH, expand=True)
+        self.samples.bind("<Double-1>", self.open_sample)
+
+    def open_sample(self, _event=None):
+        sel = self.samples.selection()
+        if sel:
+            idx = int(self.samples.item(sel[0])["values"][0]) - 1
+            self.nb.select(0)
+            self.load(SAMPLES[idx])
+
+    # ----------------------------------------------------------- tab: tests --
+    def _tab_tests(self):
+        tab = ttk.Frame(self.nb)
+        self.nb.add(tab, text="  ✓  Test Suite  ")
+        wrap = tk.Frame(tab, bg=BG)
+        wrap.pack(fill=tk.BOTH, expand=True, padx=26, pady=16)
+        bar = tk.Frame(wrap, bg=BG)
+        bar.pack(fill=tk.X, pady=(0, 10))
+        RoundButton(bar, "Run all tests", self.run_all, parent_bg=BG).pack(side=tk.LEFT)
+        RoundButton(bar, "Strict grammar: accept / reject", self.run_accept_reject, bg="#E1E7F1", hover="#D2DAE9",
+                    fg=INK, bold=False, parent_bg=BG).pack(side=tk.LEFT, padx=10)
+        RoundButton(bar, "Export…", self.export, bg="#E1E7F1", hover="#D2DAE9", fg=INK, bold=False,
+                    parent_bg=BG).pack(side=tk.RIGHT)
+        tk.Label(wrap, text="These exam tests use the strict LL(1) grammar, so they include sentences that are "
+                            "deliberately malformed. The Translate tab never rejects your text.",
+                 font=(FONT, 9), fg=MUTED, bg=BG, anchor="w", wraplength=1200, justify=tk.LEFT).pack(fill=tk.X, pady=(0, 8))
+        card = self._card(wrap, None, fill=tk.BOTH, expand=True)
+        box, self.results = self._scrolled_text(card, font=(MONO, 10), bg="#FAFBFE", fg=INK, padx=16, pady=12,
+                                                wrap=tk.NONE)
+        box.pack(fill=tk.BOTH, expand=True)
+        self.results.tag_configure("pass", foreground=OK_FG, font=(MONO, 10, "bold"))
+        self.results.tag_configure("fail", foreground="#A3121F", font=(MONO, 10, "bold"))
+        self.results.tag_configure("head", foreground=NAVY2, font=(MONO, 10, "bold"))
+        self.results.insert("1.0", "Press “Run all tests” to run the full suite.\n", "head")
+
+    def _capture(self, func):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            func()
+        return buf.getvalue()
+
+    def _show_results(self, text):
+        self.results.delete("1.0", tk.END)
+        for line in text.splitlines():
+            up = line.upper()
+            if "[FAIL]" in up or "SOME TESTS FAILED" in up:
+                tag = "fail"
+            elif "[PASS]" in up or "PASSED" in up or "✓" in line:
+                tag = "pass"
+            elif line.startswith(("=", "-")) or (line.strip() and line.strip().isupper()):
+                tag = "head"
+            else:
+                tag = ""
+            self.results.insert(tk.END, line + "\n", tag)
+        self.last_results = text
+
+    def run_all(self):
+        self.root.config(cursor="watch")
+        self.root.update_idletasks()
+        try:
+            self._show_results(self._capture(TestRunner().run_all_tests))
+        finally:
+            self.root.config(cursor="")
+
+    def run_accept_reject(self):
+        self._show_results(self._capture(lambda: TestRunner().run_accept_reject_tests()))
+
+    def export(self):
+        text = getattr(self, "last_results", "")
+        if not text:
+            messagebox.showinfo("Nothing to export", "Run the tests first.")
+            return
+        path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text", "*.txt")],
+                                            initialfile=f"afjen_test_results_{datetime.now():%Y%m%d_%H%M%S}.txt")
+        if path:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(text)
+
+    # --------------------------------------------------------- tab: grammar --
+    def _tab_grammar(self):
+        tab = ttk.Frame(self.nb)
+        self.nb.add(tab, text="  ⌘  Grammar  ")
+        wrap = tk.Frame(tab, bg=BG)
+        wrap.pack(fill=tk.BOTH, expand=True, padx=26, pady=16)
+        conflicts = len(grammar.find_conflicts())
+        prods = sum(len(p) for p in grammar.GRAMMAR.values())
+        stats = tk.Frame(wrap, bg=BG)
+        stats.pack(fill=tk.X, pady=(0, 12))
+        for label, value in (("non-terminals", len(grammar.GRAMMAR)), ("productions", prods),
+                             ("table entries", len(grammar.TABLE)), ("LL(1) conflicts", conflicts)):
+            c = tk.Frame(stats, bg=CARD, highlightthickness=1, highlightbackground=LINE)
+            c.pack(side=tk.LEFT, padx=(0, 12))
+            tk.Label(c, text=str(value), font=(FONT, 22, "bold"), fg=GREEN_D, bg=CARD).pack(padx=26, pady=(10, 0))
+            tk.Label(c, text=label, font=(FONT, 9), fg=MUTED, bg=CARD).pack(padx=26, pady=(0, 10))
+        card = self._card(wrap, None, fill=tk.BOTH, expand=True)
+        box, txt = self._scrolled_text(card, font=(MONO, 10), bg="#FAFBFE", fg=INK, padx=16, pady=12, wrap=tk.NONE)
+        box.pack(fill=tk.BOTH, expand=True)
+        txt.tag_configure("nt", foreground=GREEN_D, font=(MONO, 10, "bold"))
+        txt.tag_configure("h", foreground=NAVY2, font=(MONO, 11, "bold"))
+        txt.insert(tk.END, "PRODUCTIONS\n", "h")
+        for nt, ps in grammar.GRAMMAR.items():
+            txt.insert(tk.END, f"{nt:<9}", "nt")
+            txt.insert(tk.END, " → " + "  |  ".join(" ".join(p) for p in ps) + "\n")
+        txt.insert(tk.END, "\nFIRST / FOLLOW\n", "h")
+        for nt in grammar.GRAMMAR:
+            txt.insert(tk.END, f"{nt:<9}", "nt")
+            txt.insert(tk.END, f" FIRST  {{{', '.join(sorted(grammar.FIRST[nt]))}}}\n")
+            txt.insert(tk.END, f"{'':<9} FOLLOW {{{', '.join(sorted(grammar.FOLLOW[nt]))}}}\n")
+        txt.configure(state=tk.DISABLED)
+
+    # ---------------------------------------------------------- tab: about --
+    def _tab_about(self):
+        tab = ttk.Frame(self.nb)
+        self.nb.add(tab, text="  ⓘ  About  ")
+        wrap = tk.Frame(tab, bg=BG)
+        wrap.pack(fill=tk.BOTH, expand=True, padx=26, pady=16)
+        card = self._card(wrap, None, fill=tk.BOTH, expand=True)
+        msg = (
+            "AFJEN COMPILER  ·  CS4110 Compiler Construction, ICT University\n\n"
+            "How to use it\n"
+            "  1. Type or paste any text on the Translate tab (one word or many paragraphs).\n"
+            "  2. Press “Translate & Analyze” (or Ctrl+Enter). Switch English / Français at any time.\n"
+            "  3. Read the translation, then look at the words and sentence structure AFJEN found.\n\n"
+            "Nothing is refused\n"
+            "  Any text is accepted. Unknown words are kept as written and added to your word bank; sentences that\n"
+            "  are looser than the strict grammar are analysed clause by clause and word by word.\n\n"
+            "Translation badges\n"
+            "  ✔ Verified   hand-checked translation of one of the 15 collected statements.\n"
+            "  ⚙ Automatic  rule engine: dey → is/are -ing · done/don → has/have · go → will · no fit → cannot ·\n"
+            "               make we → let's · make you → please · wahala → trouble.\n\n"
+            "Under the hood\n"
+            "  Lexical analysis (18 token types, regular expressions) → strict table-driven LL(1) parser →\n"
+            "  semantic category and intent → translation. The strict grammar is conflict-free and is used for the\n"
+            "  exam accept / reject tests.\n"
+        )
+        tk.Label(card, text=msg, font=(FONT, 11), fg=INK, bg=CARD, justify=tk.LEFT, anchor="nw").pack(
+            fill=tk.BOTH, expand=True, padx=28, pady=24)
 
 
 def main():
+    try:  # crisp text on high-DPI Windows screens
+        import ctypes
+        ctypes.windll.shcore.SetProcessDpiAwareness(1)
+    except Exception:
+        pass
     root = tk.Tk()
-    app = YaoundeCompilerGUI(root)
+    try:
+        root.state("zoomed")
+    except tk.TclError:
+        pass
+    AfjenApp(root)
     root.mainloop()
 
 
