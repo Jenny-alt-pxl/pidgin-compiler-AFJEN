@@ -19,7 +19,7 @@ import translator as T
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 USER_PATH = os.path.join(ROOT, "data", "user_dictionary.json")
 
-TYPES = ["noun", "verb", "adjective", "adverb", "interjection", "proper noun"]
+TYPES = ["noun", "verb", "adjective", "adverb", "interjection", "proper noun", "expression"]
 _TOKEN = {"verb": L.TokenType.VERB, "adjective": L.TokenType.ADJECTIVE, "adverb": L.TokenType.ADVERB,
           "interjection": L.TokenType.INTERJECTION, "proper noun": L.TokenType.PROPER_NOUN}
 WORD_RE = re.compile(r"^[a-zà-ÿ][a-zà-ÿ'’-]{0,29}$", re.IGNORECASE)
@@ -57,11 +57,27 @@ def _fr_forms(inf: str) -> Tuple[str, str, str, str]:
     return inf, inf, "avoir", inf
 
 
+PHRASE_RE = re.compile(r"^[a-zà-ÿ][a-zà-ÿ' ?,-]{0,58}$", re.IGNORECASE)
+
+
+def phrase_key(text: str) -> str:
+    return re.sub(r"[?!.,]", "", re.sub(r"\s+", " ", text.strip().lower())).strip()
+
+
 def validate(word: str, kind: str, english: str, french: str) -> str:
     """Return an error message, or '' if the entry is valid."""
     word = word.strip()
     if not word:
         return "Type the word first."
+    if kind == "expression":
+        key = phrase_key(word)
+        if not PHRASE_RE.match(key):
+            return "Use letters and spaces only for an expression (max 60 characters)."
+        if not english.strip() or not french.strip():
+            return "Give both the English and the French meaning."
+        if key in T.BUILTIN_IDIOMS:
+            return f"“{key}” is already a built-in expression."
+        return ""
     if " " in word:
         return "Add one word at a time (no spaces)."
     if not WORD_RE.match(word):
@@ -79,6 +95,8 @@ def add_word(word: str, kind: str, english: str, french: str, gender: str = "m")
     err = validate(word, kind, english, french)
     if err:
         return False, err
+    if kind == "expression":
+        word = phrase_key(word)
     entries = [e for e in load() if e["word"].lower() != word.lower()]
     replaced = len(entries) != len(load())
     entries.append({"word": word.strip().lower(), "type": kind, "english": english.strip(),
@@ -129,6 +147,12 @@ def apply() -> int:
     count = 0
     for e in load():
         w, kind, en, fr = e["word"].lower(), e["type"], e["english"], e["french"]
+        if kind == "expression":
+            if w not in T.BUILTIN_IDIOMS:
+                T.IDIOMS[w] = (en, fr, None, None)
+                T.USER_ADDED["IDIOMS"].add(w)
+                count += 1
+            continue
         if w in T.BUILTIN_WORDS:
             continue
         count += 1

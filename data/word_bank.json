@@ -1,5 +1,5 @@
 {
- "updated": "2026-09-29T12:06:20",
+ "updated": "2026-09-29T12:17:51",
  "words": {
   "abeg": {
    "count": 2,
@@ -34,7 +34,7 @@
    "known": true
   },
   "at": {
-   "count": 5,
+   "count": 1,
    "known": true
   },
   "bad": {
@@ -70,7 +70,7 @@
    "known": true
   },
   "brother": {
-   "count": 7,
+   "count": 3,
    "known": true
   },
   "browse": {
@@ -94,7 +94,7 @@
    "known": true
   },
   "carrefour": {
-   "count": 5,
+   "count": 1,
    "known": true
   },
   "charge": {
@@ -146,11 +146,11 @@
    "known": true
   },
   "don": {
-   "count": 13,
+   "count": 10,
    "known": true
   },
   "done": {
-   "count": 9,
+   "count": 5,
    "known": true
   },
   "down": {
@@ -162,11 +162,11 @@
    "known": true
   },
   "driver": {
-   "count": 4,
+   "count": 1,
    "known": true
   },
   "drop": {
-   "count": 5,
+   "count": 1,
    "known": true
   },
   "eh": {
@@ -214,7 +214,7 @@
    "known": true
   },
   "for": {
-   "count": 16,
+   "count": 13,
    "known": true
   },
   "francs": {
@@ -286,7 +286,7 @@
    "known": true
   },
   "i": {
-   "count": 11,
+   "count": 8,
    "known": true
   },
   "increase": {
@@ -306,7 +306,7 @@
    "known": true
   },
   "junction": {
-   "count": 4,
+   "count": 1,
    "known": true
   },
   "kilometers": {
@@ -346,7 +346,7 @@
    "known": true
   },
   "me": {
-   "count": 14,
+   "count": 6,
    "known": true
   },
   "message": {
@@ -390,7 +390,7 @@
    "known": true
   },
   "na": {
-   "count": 10,
+   "count": 6,
    "known": true
   },
   "network": {
@@ -490,7 +490,7 @@
    "known": true
   },
   "reach": {
-   "count": 4,
+   "count": 1,
    "known": true
   },
   "reduce": {
@@ -554,7 +554,7 @@
    "known": true
   },
   "small": {
-   "count": 11,
+   "count": 7,
    "known": true
   },
   "so": {
@@ -570,7 +570,7 @@
    "known": true
   },
   "stop": {
-   "count": 4,
+   "count": 1,
    "known": true
   },
   "stuck": {
@@ -598,7 +598,7 @@
    "known": true
   },
   "the": {
-   "count": 18,
+   "count": 14,
    "known": true
   },
   "they": {
@@ -618,7 +618,7 @@
    "known": true
   },
   "tire": {
-   "count": 6,
+   "count": 2,
    "known": true
   },
   "tomatoes": {
@@ -634,7 +634,7 @@
    "known": true
   },
   "traffic": {
-   "count": 5,
+   "count": 1,
    "known": true
   },
   "transport": {
@@ -690,7 +690,7 @@
    "known": true
   },
   "yaoundé": {
-   "count": 7,
+   "count": 3,
    "known": true
   },
   "you": {

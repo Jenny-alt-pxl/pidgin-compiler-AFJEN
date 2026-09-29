@@ -39,6 +39,18 @@ class TranslatorTests(unittest.TestCase):
         for src, expected in cases.items():
             self.assertEqual(T.translate(src, "en")[0], expected, src)
 
+    def test_sense_based_expressions(self):
+        cases = {
+            ("You dey ok", "en"): "You are alright.",
+            ("You dey ok?", "en"): "Are you alright?",
+            ("You dey dey ok so?", "en"): "Are you normal?",
+            ("You dey dey ok so?", "fr"): "Tu es normal ?",
+            ("Wetin dey happen?", "en"): "What is going on?",
+            ("How you dey?", "fr"): "Comment vas-tu ?",
+        }
+        for (src, lang), expected in cases.items():
+            self.assertEqual(T.translate(src, lang)[0], expected, src)
+
     def test_french_basics(self):
         self.assertEqual(T.translate("How you dey?", "fr")[0], "Comment vas-tu ?")
         self.assertEqual(T.translate("Driver, stop here", "fr")[0], "Chauffeur, arrête ici.")

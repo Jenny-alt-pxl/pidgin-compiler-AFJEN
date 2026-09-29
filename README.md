@@ -1,5 +1,7 @@
 # AFJEN Compiler - Yaoundé Compiler Construction Project
 
+**Founded by Tembong Jennette and Abang Afumbon** - AFJEN = **AF**umbon + **JEN**nette.
+
 **Course:** CS4110 - Compiler Construction  
 **Instructor:** Engr. Tanwi Nkiamboh  
 **Institution:** ICT University  

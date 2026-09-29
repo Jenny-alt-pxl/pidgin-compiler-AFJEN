@@ -74,7 +74,7 @@ PAGE_SUBTITLE = {
     "insights": "What you have been analysing",
     "tests": "Exam tests for the lexer, the strict LL(1) parser and the translator",
     "grammar": "The conflict-free LL(1) grammar behind the parser",
-    "about": "How AFJEN works",
+    "about": "The founders, the story and how AFJEN works",
 }
 
 
@@ -675,7 +675,7 @@ class AfjenApp:
                 tk.Label(body, text=hint, font=(SANS, 8), fg=MUTED, bg=BG).grid(row=row, column=1, sticky="e")
             return e
 
-        e_word = field("Word (Pidgin / slang / franc-anglais)", v_word, 0)
+        e_word = field("Word or expression (Pidgin / slang)", v_word, 0)
         tk.Label(body, text="Type", font=(SANS, 9, "bold"), fg=MUTED, bg=BG).grid(row=2, column=0, sticky="w", pady=(0, 2))
         ttk.Combobox(body, textvariable=v_type, values=userdict.TYPES, state="readonly", width=16,
                      font=(SANS, 11)).grid(row=3, column=0, sticky="w", pady=(0, 10), ipady=3)
@@ -1087,33 +1087,99 @@ class AfjenApp:
 
     # -------------------------------------------------------------- page: about --
     def _page_about(self, page):
-        wrap = tk.Frame(page, bg=BG)
-        wrap.pack(fill=tk.BOTH, expand=True, padx=34, pady=16)
-        card = self._card(wrap, None, fill=tk.BOTH, expand=True)
-        nl = chr(10)
-        msg = (
-            "AFJEN COMPILER  ·  CS4110 Compiler Construction, ICT University" + nl * 2
-            + "How to use it" + nl
-            + "  1. Type or paste any text on the Translate page - one word or many paragraphs." + nl
-            + "  2. Read the translation. Switch English / Français, copy it, or Save to file." + nl
-            + "  3. Look at the words and sentence structure AFJEN found." + nl * 2
-            + "Make it yours" + nl
-            + "  ＋ Add word       teach AFJEN a word with its English and French meaning (works everywhere at once)." + nl
-            + "  ＋ Add statement  store a statement with a corrected, verified translation." + nl
-            + "  Both are saved in data/user_dictionary.json and data/user_statements.json." + nl * 2
-            + "Translation badges" + nl
-            + "  ✔ Verified   hand-checked translation from the statement collection (or a statement you added)." + nl
-            + "  ⚙ Automatic  rule engine: dey → is/are -ing · done/don → has/have · go → will · no fit → cannot ·" + nl
-            + "               make we → let's · bin → past · wan → want to · mos → must." + nl * 2
-            + "Nothing is refused" + nl
-            + "  Any text is accepted. Unknown words are kept as written and added to your word bank; looser sentences" + nl
-            + "  are analysed clause by clause. The strict LL(1) accept / reject tests live on the Test Suite page." + nl * 2
-            + "Under the hood" + nl
-            + "  Lexical analysis (18 token types, regular expressions) → strict table-driven LL(1) parser →" + nl
-            + "  semantic category and intent → translation." + nl
-        )
-        tk.Label(card, text=msg, font=(SANS, 11), fg=INK, bg=CARD, justify=tk.LEFT, anchor="nw").pack(
-            fill=tk.BOTH, expand=True, padx=30, pady=24)
+        canvas = tk.Canvas(page, bg=BG, highlightthickness=0)
+        vbar = ttk.Scrollbar(page, orient=tk.VERTICAL, command=canvas.yview)
+        canvas.configure(yscrollcommand=vbar.set)
+        vbar.pack(side=tk.RIGHT, fill=tk.Y)
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        wrap = tk.Frame(canvas, bg=BG)
+        win = canvas.create_window((0, 0), window=wrap, anchor="nw")
+        wrap.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.bind("<Configure>", lambda e: canvas.itemconfigure(win, width=e.width))
+        canvas.bind_all("<MouseWheel>", lambda e: canvas.yview_scroll(int(-e.delta / 120), "units")
+                        if self.current == "about" else (self._wheel_translate(e) if self.current == "translate" else None))
+        pad = tk.Frame(wrap, bg=BG)
+        pad.pack(fill=tk.BOTH, expand=True, padx=34, pady=(16, 30))
+
+        # hero
+        hero = tk.Frame(pad, bg=PLUM)
+        hero.pack(fill=tk.X)
+        tk.Label(hero, text="The women behind AFJEN", font=(SERIF, 22, "bold"), fg="white", bg=PLUM).pack(
+            anchor="w", padx=32, pady=(26, 4))
+        tk.Label(hero, text="Founded by Tembong Jennette and Abang Afumbon - the name AFJEN carries the first letters "
+                            "of both of them:  AFumbon  +  JENnette.",
+                 font=(SANS, 11), fg="#E7D3E4", bg=PLUM, wraplength=1000, justify=tk.LEFT).pack(
+            anchor="w", padx=32, pady=(0, 26))
+        tk.Frame(pad, height=3, bg=GOLD).pack(fill=tk.X)
+
+        # founders
+        row = tk.Frame(pad, bg=BG)
+        row.pack(fill=tk.X, pady=(18, 0))
+        row.columnconfigure(0, weight=1, uniform="f")
+        row.columnconfigure(1, weight=1, uniform="f")
+        for col, (initials, name) in enumerate((("TJ", "Tembong Jennette"), ("AA", "Abang Afumbon"))):
+            holder = tk.Frame(row, bg=BG)
+            holder.grid(row=0, column=col, sticky="nsew", padx=(0, 8) if col == 0 else (8, 0))
+            card = self._card(holder, None, fill=tk.BOTH, expand=True)
+            inner = tk.Frame(card, bg=CARD)
+            inner.pack(fill=tk.X, padx=22, pady=20)
+            badge = tk.Canvas(inner, width=76, height=76, bg=CARD, highlightthickness=0)
+            badge.pack(side=tk.LEFT)
+            badge.create_oval(4, 4, 72, 72, fill=PLUM, outline=GOLD, width=3)
+            badge.create_text(38, 38, text=initials, font=(SERIF, 22, "bold"), fill=GOLD)
+            text = tk.Frame(inner, bg=CARD)
+            text.pack(side=tk.LEFT, padx=18)
+            tk.Label(text, text=name, font=(SERIF, 18, "bold"), fg=PLUM, bg=CARD).pack(anchor="w")
+            tk.Label(text, text="Founder  ·  co-owner of AFJEN", font=(SANS, 10), fg=ROSE, bg=CARD).pack(anchor="w")
+            tk.Label(text, text="Brilliant, brave and relentless.", font=(SERIF, 11, "italic"), fg=MUTED,
+                     bg=CARD).pack(anchor="w", pady=(4, 0))
+
+        def story(title, paragraphs, top=16):
+            card = self._card(pad, title, fill=tk.X, pady=(top, 0))
+            for para in paragraphs:
+                tk.Label(card, text=para, font=(SANS, 11), fg=INK, bg=CARD, justify=tk.LEFT, anchor="w",
+                         wraplength=1300).pack(fill=tk.X, padx=24, pady=(0, 10))
+            tk.Frame(card, height=6, bg=CARD).pack()
+
+        story("Who they are", [
+            "AFJEN is the work of two determined women who looked at the way their city really talks - Pidgin, "
+            "French, English, Ewondo and street slang, often in a single sentence - and decided that it deserved a "
+            "place in computer science. Tembong Jennette and Abang Afumbon do not just write code: they listen, "
+            "they care about the words people actually use, and they refuse to let a difficult problem beat them.",
+            "Together they turned a hard assignment into something real, useful and beautiful. This project is theirs, "
+            "and every line of it carries their effort, their patience and their pride in Yaoundé.",
+        ])
+        story("How the project came to us - and what it cost", [
+            "It began as the final-examination project for CS4110 Compiler Construction at ICT University, set by "
+            "Engr. Tanwi Nkiamboh: build a compiler that can read the informal, multilingual speech of Yaoundé - taxis, "
+            "markets, bendskins, checkpoints and campus life.",
+            "It was not an easy gift. Nothing about it could be copied from a textbook. The words had to be collected "
+            "and written down exactly as they were spoken; the grammar broke again and again on real sentences and "
+            "had to be rebuilt; there were long hours, setbacks and moments of doubt. They suffered to bring it - and "
+            "they kept going until an exam requirement became a working compiler, a translator and a dictionary that "
+            "understands the sense behind what people say.",
+        ])
+        story("How AFJEN works", [
+            "1.  You type or paste any amount of Pidgin, franc-anglais, English or French.",
+            "2.  Reading the words (lexical analysis): regular expressions cut the text into 18 kinds of token - nouns, "
+            "verbs, Pidgin markers like dey, done and fit, numbers, slang, code-mixed phrases - and recognise the "
+            "words you taught it.",
+            "3.  Checking the structure (syntactic analysis): a table-driven LL(1) parser builds the sentence tree. "
+            "Loose, informal sentences are read clause by clause - AFJEN never refuses your text.",
+            "4.  Understanding the sense: AFJEN knows expressions by what they mean, not word by word. “you dey ok” "
+            "means “you are alright”, but “you dey dey ok so?” means “are you normal?”.",
+            "5.  Translating into English or Français: hand-verified translations first, then expressions, then rules "
+            "for Pidgin tense (dey = is doing, done = has done, go = will, no fit = cannot, bin = did).",
+            "6.  Making it yours: ＋ Add word, ＋ Add statement and Save to file let you keep teaching AFJEN, so it "
+            "gets better every time you use it.",
+        ])
+        tk.Label(pad, text="Made with pride in Yaoundé", font=(SERIF, 14, "italic"), fg=ROSE, bg=BG).pack(pady=(22, 0))
+
+    def _wheel_translate(self, event):
+        for child in self.pages["translate"].winfo_children():
+            if isinstance(child, tk.Canvas):
+                child.yview_scroll(int(-event.delta / 120), "units")
+                break
 
 
 def main():

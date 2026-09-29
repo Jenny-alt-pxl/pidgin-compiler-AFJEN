@@ -91,7 +91,7 @@ NOUNS = {
 }
 PROPER = {"yaoundé": ("Yaoundé", "Yaoundé"), "carrefour": ("Carrefour", "Carrefour"),
           "mambanda": ("Mambanda", "Mambanda"), "mtn": ("MTN", "MTN"), "mama": ("Mama", "Maman"),
-          "brother": ("Brother", "Frère"), "prof": ("the professor", "le prof"), "ict": ("ICT", "ICT")}
+          "brother": ("brother", "frère"), "prof": ("the professor", "le prof"), "ict": ("ICT", "ICT")}
 NUMBERS = {"one": ("one", "un"), "two": ("two", "deux"), "three": ("three", "trois"), "four": ("four", "quatre"),
            "five": ("five", "cinq"), "six": ("six", "six"), "seven": ("seven", "sept"), "eight": ("eight", "huit"),
            "nine": ("nine", "neuf"), "ten": ("ten", "dix"), "hundred": ("hundred", "cents"),
@@ -269,6 +269,46 @@ def _have(person: str, lang: str) -> str:
     return {"1s": "ai", "2s": "as", "3s": "a", "1p": "avons", "3p": "ont"}.get(person, "a")
 
 
+# ---------------------------------------------------------------------------
+# Expressions (idioms): translated by SENSE, not word by word.
+# key = the clause in lower case without punctuation
+# value = (English, French, English as a question, French as a question)  - question forms used when the
+#         clause ends with "?" (None = same as the statement)
+# ---------------------------------------------------------------------------
+IDIOMS: Dict[str, Tuple[str, str, object, object]] = {
+    "you dey ok": ("you are alright", "tu vas bien", "are you alright", "tu vas bien"),
+    "you dey dey ok so": ("you really are fine", "tu vas vraiment bien", "are you normal", "tu es normal"),
+    "you dey ok so": ("you are fine, then", "tu vas bien, alors", "are you sure you are alright", "tu es sûr que ça va"),
+    "you dey craze": ("you are crazy", "tu es fou", "are you crazy", "tu as perdu la tête"),
+    "you don craze": ("you have gone crazy", "tu es devenu fou", "have you gone crazy", "tu as perdu la tête"),
+    "you don mad": ("you have gone mad", "tu es devenu fou", "have you gone mad", "tu as perdu la tête"),
+    "how you dey": ("how are you", "comment vas-tu", None, None),
+    "how you di do": ("how are you", "comment vas-tu", None, None),
+    "how body": ("how are you", "comment ça va", None, None),
+    "how far": ("what's up", "quoi de neuf", None, None),
+    "i dey": ("I am fine", "je vais bien", None, None),
+    "i dey fine": ("I am fine", "je vais bien", None, None),
+    "i dey ok": ("I am alright", "ça va", None, None),
+    "i dey come": ("I am coming, I'll be right back", "j'arrive", None, None),
+    "wetin dey happen": ("what is going on", "qu'est-ce qui se passe", None, None),
+    "wetin happen": ("what happened", "qu'est-ce qui s'est passé", None, None),
+    "wetin be dis": ("what is this", "qu'est-ce que c'est", None, None),
+    "wetin be that": ("what is that", "qu'est-ce que c'est", None, None),
+    "wetin you dey do": ("what are you doing", "qu'est-ce que tu fais", None, None),
+    "wetin you want": ("what do you want", "qu'est-ce que tu veux", None, None),
+    "no wahala": ("no problem", "pas de problème", None, None),
+    "e no easy": ("it is not easy", "ce n'est pas facile", None, None),
+    "e don do": ("that is enough", "ça suffit", None, None),
+    "na so": ("that is how it is", "c'est comme ça", None, None),
+    "na wa": ("wow, that is something", "eh ben dis donc", None, None),
+    "i no sabi": ("I don't know", "je ne sais pas", None, None),
+    "i don tire": ("I am tired of it", "j'en ai marre", None, None),
+    "wait small": ("wait a moment", "attends un instant", None, None),
+    "abeg": ("please", "s'il te plaît", None, None),
+    "thank you": ("thank you", "merci", None, None),
+}
+
+
 class Translator:
     def __init__(self):
         self.lexer = LexicalAnalyzer()
@@ -307,7 +347,7 @@ class Translator:
             clauses.append((cur, ""))
         pieces = []
         for toks, sep in clauses:
-            s = self._clause(toks, lang)
+            s = self._clause(toks, lang, sep)
             if s:
                 pieces.append((s, sep))
         out = ""
@@ -504,7 +544,29 @@ class Translator:
         return " ".join(x for x in out if x)
 
     # clause ------------------------------------------------------------------
-    def _clause(self, toks: List[Token], lang: str) -> str:
+    def _idiom(self, toks: List[Token], lang: str, sep: str = ""):
+        """Translate an expression by its sense. Returns None when the clause is not a known expression."""
+        words = [t.value.lower() for t in toks if t.type not in (TokenType.PUNCTUATION, TokenType.CONNECTOR)]
+        entry = IDIOMS.get(" ".join(words))
+        if not entry:
+            return None
+        en, fr, enq, frq = entry
+        if sep == "?":
+            en = enq or en
+            fr = frq or fr
+        return en if lang == "en" else fr
+
+    def _clause(self, toks: List[Token], lang: str, sep: str = "") -> str:
+        hit = self._idiom(toks, lang, sep)
+        if hit is not None:
+            return hit
+        # emphatic "dey dey" -> one "dey"
+        squeezed = []
+        for t in toks:
+            if squeezed and t.type == TokenType.PIDGIN_VERB and squeezed[-1].type == TokenType.PIDGIN_VERB                     and t.value.lower() == squeezed[-1].value.lower() == "dey":
+                continue
+            squeezed.append(t)
+        toks = squeezed
         toks = [t for t in toks if not (t.type == TokenType.PIDGIN_MARKER and t.value.lower() == "na")]
         if not toks:
             return ""
@@ -883,7 +945,8 @@ BUILTIN_WORDS = (set(NOUNS) | set(PROPER) | set(NUMBERS) | set(ADJ) | set(ADV) |
                  | {"dey", "di", "done", "don", "fit", "wan", "mos", "bin", "no", "make", "na", "am", "me", "small",
                     "the", "a", "an", "this", "that", "these", "those", "dis", "dat", "my", "your", "our", "their", "his",
                     "and", "but", "or"})
-USER_ADDED = {"NOUNS": set(), "PROPER": set(), "ADJ": set(), "ADV": set(), "INTERJ": set(), "FR": set(),
+BUILTIN_IDIOMS = set(IDIOMS)
+USER_ADDED = {"IDIOMS": set(), "NOUNS": set(), "PROPER": set(), "ADJ": set(), "ADV": set(), "INTERJ": set(), "FR": set(),
               "EN_IRREG": set(), "EN_BASE": set(), "PAST_EN": set()}
 
 

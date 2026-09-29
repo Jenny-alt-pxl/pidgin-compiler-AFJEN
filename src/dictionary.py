@@ -94,6 +94,8 @@ def build_dictionary() -> List[Tuple[str, str, str, str]]:
         add(w, "Question word", e[0], e[1])
     for w, (en, fr, _p) in T.PRON_EN.items():
         add(w, "Pronoun", en, fr)
+    for phrase, (en, fr, _enq, _frq) in T.IDIOMS.items():
+        add(phrase, "Expression", en, fr)
     for entry in userdict.load():
         key = entry["word"].lower()
         if key in rows:
