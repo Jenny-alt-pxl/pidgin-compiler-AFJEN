@@ -416,10 +416,9 @@ For more information, see:
                 self.parse_text.insert('1.0', "✓ PARSING SUCCESSFUL\n\n")
                 self.parse_text.insert(tk.END, "Parse Tree:\n" + "─" * 40 + "\n")
                 if tree:
-                    tree.print_tree()  # This prints to console
-                    self.parse_text.insert(tk.END, str(tree))
+                    self.parse_text.insert(tk.END, tree.compact().format_tree())
             else:
-                self.parse_text.insert('1.0', f"✗ PARSING FAILED\n\n{message}")
+                self.parse_text.insert('1.0', "✗ PARSING FAILED (statement rejected by the LL(1) grammar)\n\n" + "\n".join(diagnostics))
             
             # Update status
             status_msg = f"✓ Analysis Complete: {len(tokens)-1} tokens extracted, Parse: {'SUCCESS' if success else 'FAILED'}"

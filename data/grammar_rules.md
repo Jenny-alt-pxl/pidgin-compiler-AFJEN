@@ -53,6 +53,7 @@ VP       → NEGATION VP
 VPA      → VERB VTAIL
          | ADJP COMPS
          | PREPOSITION PPX
+         | ε
 VTAIL    → VERB VTAIL
          | COMPS
 ADJP     → ADVERB ADJP
@@ -95,7 +96,7 @@ NPB2     → NUMBER NPB2
 ```
 
 * Non-terminals: 32
-* Productions: 87
+* Productions: 88
 * Terminals: 18 (ADJECTIVE, ADVERB, ARTICLE, CODE_MIXED, CONNECTOR, INTERJECTION, NEGATION, NOUN, NUMBER, PIDGIN_MARKER, PIDGIN_VERB, PREPOSITION, PRONOUN, PROPER_NOUN, PUNCTUATION, QUESTION_WORD, SUBJUNCTIVE, VERB)
 * Left recursion: none (removed - see report section 3.2)
 * Left factoring: applied (VP/VTAIL, PPX/PPY, COMPS/COMPSA, NPB/NPB2)

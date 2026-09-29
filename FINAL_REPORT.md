@@ -332,8 +332,8 @@ the earlier permissive parser is kept in `src/lenient_parser.py` only for compar
 | Test set | Sentences | Result |
 |---|---|---|
 | Collected statements (section 1.3) | 15 | **15 accepted** |
-| Extra grammatical sentences not in the data | 12 | **12 accepted** (grammar generalises) |
-| Malformed sequences | 15 | **15 rejected** |
+| Extra grammatical sentences not in the data | 14 | **14 accepted** (grammar generalises) |
+| Malformed sequences | 14 | **14 rejected** |
 
 Malformed examples and the error reported:
 
@@ -344,7 +344,7 @@ Malformed examples and the error reported:
 | "dey dey dey" | rejected | unexpected 'dey' (PIDGIN_VERB) while parsing S |
 | "done light cut" | rejected | unexpected 'done' (PIDGIN_VERB) while parsing S |
 | "Brother" | rejected | unexpected end of input while parsing R0 (no predicate) |
-| "light dey" | rejected | unexpected end of input while parsing VPA |
+| "How you dey?" | accepted | - |
 | "" (empty) | rejected | unexpected end of input while parsing S |
 | "The taxi don reach Carrefour" | accepted | - |
 | "Why the bendskin dey charge too much?" | accepted | - |
@@ -385,13 +385,13 @@ _(Insert before submission; capture from a real run.)_
 | `src/parser.py` | Strict table-driven LL(1) parser, parse tree, diagnostics, trace |
 | `src/lenient_parser.py` | Earlier permissive parser (kept for comparison only) |
 | `src/semantic_analyzer.py` | Category / intent classification |
-| `tests/test_cases.py` | Test runner: 15 collected statements + 12 extra grammatical + 15 malformed sentences; report generator |
+| `tests/test_cases.py` | Test runner: 15 collected statements + 14 extra grammatical + 14 malformed sentences; report generator |
 | `analysis/generate_tables.py` | Regenerates grammar rules, FIRST/FOLLOW and the parsing table from `src/grammar.py` |
 | `main.py`, `gui_application.py`, `run_gui.py` | Menu / CLI and GUI front-ends |
 | `data/` | Statements, token specification, grammar rules |
 | `analysis/` | FIRST/FOLLOW, parsing table, test and semantic reports |
 
-Test results (strict parser): lexical 15/15, syntactic 15/15 accepted; 12/12 extra grammatical sentences accepted; 15/15 malformed sequences rejected. By category: Taxi 3/3, Internet & Electricity 3/3, Market 3/3, Security & Weather 2/2, Fuel 2/2, University 2/2.
+Test results (strict parser): lexical 15/15, syntactic 15/15 accepted; 14/14 extra grammatical sentences accepted; 14/14 malformed sequences rejected. By category: Taxi 3/3, Internet & Electricity 3/3, Market 3/3, Security & Weather 2/2, Fuel 2/2, University 2/2.
 
 ---
 
@@ -432,7 +432,7 @@ Each student presents for **3 minutes** (see `PRESENTATION_GUIDE.md`; the paper 
 - **Languages:** Fulfulde and Ewondo expressions are not yet represented.
 
 ## 10. CONCLUSION
-The project applies compiler-construction techniques (regex-based lexing, CFG design, left-recursion removal, left factoring, FIRST/FOLLOW, LL(1) table, predictive parsing) to informal Yaoundé speech. Lexical analysis covers all 245 tokens of the collected data; a verified conflict-free LL(1) grammar is provided; and the strict table-driven parser accepts all 15 collected statements and 12 unseen grammatical sentences while rejecting 15 malformed sequences with precise error messages. The main open item is a larger corpus to test how far the grammar generalises.
+The project applies compiler-construction techniques (regex-based lexing, CFG design, left-recursion removal, left factoring, FIRST/FOLLOW, LL(1) table, predictive parsing) to informal Yaoundé speech. Lexical analysis covers all 245 tokens of the collected data; a verified conflict-free LL(1) grammar is provided; and the strict table-driven parser accepts all 15 collected statements and 14 unseen grammatical sentences while rejecting 14 malformed sequences with precise error messages. The main open item is a larger corpus to test how far the grammar generalises.
 
 ---
 

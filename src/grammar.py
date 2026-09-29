@@ -62,7 +62,7 @@ GRAMMAR: Dict[str, List[List[str]]] = {
     "PRED": [["VP"], ["ADJP", "COMPS"], ["PREPOSITION", "PPX"]],
     "IMP": [["VERB", "VTAIL"]],
     "VP": [["NEGATION", "VP"], ["PIDGIN_VERB", "VPA"], ["VERB", "VTAIL"]],
-    "VPA": [["VERB", "VTAIL"], ["ADJP", "COMPS"], ["PREPOSITION", "PPX"]],
+    "VPA": [["VERB", "VTAIL"], ["ADJP", "COMPS"], ["PREPOSITION", "PPX"], [EPS]],   # "how you dey", "I dey"
     "VTAIL": [["VERB", "VTAIL"], ["COMPS"]],           # serial verbs: "say come sit down"
     "ADJP": [["ADVERB", "ADJP"], ["ADJECTIVE"]],
 

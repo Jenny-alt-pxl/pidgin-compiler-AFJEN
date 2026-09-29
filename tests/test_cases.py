@@ -64,6 +64,8 @@ class TestRunner:
         "Eh, the light don go again, hmmm",
         "Police dey for checkpoint, show your document",
         "We dey wait for taxi since morning",
+        "How you dey?",
+        "I dey, thank you",
     ]
 
     # Malformed sequences - the grammar must reject every one of them
@@ -75,7 +77,6 @@ class TestRunner:
         "",
         "na na",
         "done light cut",
-        "light dey",
         "at Carrefour",
         "make",
         "the light the",
