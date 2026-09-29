@@ -1,0 +1,200 @@
+{
+  "project": "Yaoundé Compiler Project",
+  "statements": [
+    {
+      "id": "stmt_001",
+      "text": "Brother, drop me na at Carrefour Yaoundé, the traffic done tire me small",
+      "category": "transport",
+      "intent": "action",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_002",
+      "text": "Hala me small money, na five hundred francs remain for transport",
+      "category": "transport",
+      "intent": "statement",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_003",
+      "text": "Taxi! Yaoundé, Yaoundé! Fill am make we go, pas time dey waka!",
+      "category": "transport",
+      "intent": "action",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_004",
+      "text": "Eh mon Dieu, internet dey do again? I don try restart modem, garrr nothing!",
+      "category": "internet",
+      "intent": "action",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_005",
+      "text": "The light done cut again, zéro-zéro, na generator we dey use since morning",
+      "category": "energy",
+      "intent": "narration",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_006",
+      "text": "Je wanda why MTN network no fit work for this quarter, it's always down-down",
+      "category": "internet",
+      "intent": "narration",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_007",
+      "text": "Mama, make you reduce am na small, two thousand francs too much for tomatoes, ekiee",
+      "category": "market",
+      "intent": "action",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_008",
+      "text": "Chop na fresh, fresh! Come take am now, I give you good price, no wahala",
+      "category": "market",
+      "intent": "action",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_009",
+      "text": "Brother, the bendskin dey charge too much, five hundred for two kilometers, c'est cher ooo",
+      "category": "market",
+      "intent": "narration",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_010",
+      "text": "They say checkpoint ahead, document dey for front, make we be careful pass",
+      "category": "security",
+      "intent": "narration",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_011",
+      "text": "Rain don fall so, the road done become mud, car stuck for quartier Mambanda",
+      "category": "transport",
+      "intent": "action",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_012",
+      "text": "Petrol dey scarce, pump don empty again, we go wait small before go fill tank",
+      "category": "energy",
+      "intent": "action",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_013",
+      "text": "How much for this phone airtime? OK, load me two thousand balance make I browse",
+      "category": "internet",
+      "intent": "question",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_014",
+      "text": "Lecture done start, prof say come sit down, but the class dey too crowded, hmmm",
+      "category": "university",
+      "intent": "action",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_015",
+      "text": "After exam finish, we go for beer na, relax small, this semester done tire me",
+      "category": "university",
+      "intent": "action",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    }
+  ]
+}

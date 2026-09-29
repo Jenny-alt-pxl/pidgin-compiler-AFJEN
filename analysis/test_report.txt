@@ -1,0 +1,255 @@
+================================================================================
+YAOUNDÉ COMPILER - TEST REPORT
+CS4110 - Compiler Construction
+================================================================================
+
+Statement STMT_001
+Text: Brother, drop me na at Carrefour Yaoundé, the traffic done tire me small
+Tokens: 15
+Token Breakdown:
+  ARTICLE: 1
+  CONNECTOR: 2
+  NOUN: 1
+  PIDGIN_MARKER: 4
+  PIDGIN_VERB: 1
+  PREPOSITION: 1
+  PROPER_NOUN: 3
+  VERB: 2
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_002
+Text: Hala me small money, na five hundred francs remain for transport
+Tokens: 12
+Token Breakdown:
+  CONNECTOR: 1
+  NOUN: 3
+  NUMBER: 2
+  PIDGIN_MARKER: 3
+  PREPOSITION: 1
+  VERB: 2
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_003
+Text: Taxi! Yaoundé, Yaoundé! Fill am make we go, pas time dey waka!
+Tokens: 17
+Token Breakdown:
+  CONNECTOR: 2
+  NOUN: 3
+  PIDGIN_MARKER: 1
+  PIDGIN_VERB: 1
+  PRONOUN: 1
+  PROPER_NOUN: 2
+  PUNCTUATION: 3
+  SUBJUNCTIVE: 1
+  VERB: 3
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_004
+Text: Eh mon Dieu, internet dey do again? I don try restart modem, garrr nothing!
+Tokens: 17
+Token Breakdown:
+  ADVERB: 1
+  CODE_MIXED: 1
+  CONNECTOR: 2
+  INTERJECTION: 2
+  NOUN: 3
+  PIDGIN_VERB: 2
+  PRONOUN: 1
+  PUNCTUATION: 2
+  VERB: 3
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_005
+Text: The light done cut again, zéro-zéro, na generator we dey use since morning
+Tokens: 15
+Token Breakdown:
+  ADVERB: 1
+  ARTICLE: 1
+  CONNECTOR: 2
+  INTERJECTION: 1
+  NOUN: 3
+  PIDGIN_MARKER: 1
+  PIDGIN_VERB: 2
+  PREPOSITION: 1
+  PRONOUN: 1
+  VERB: 2
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_006
+Text: Je wanda why MTN network no fit work for this quarter, it's always down-down
+Tokens: 14
+Token Breakdown:
+  ADJECTIVE: 1
+  ADVERB: 1
+  ARTICLE: 1
+  CODE_MIXED: 1
+  CONNECTOR: 1
+  NEGATION: 1
+  NOUN: 2
+  PIDGIN_VERB: 1
+  PREPOSITION: 1
+  PRONOUN: 1
+  PROPER_NOUN: 1
+  QUESTION_WORD: 1
+  VERB: 1
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_007
+Text: Mama, make you reduce am na small, two thousand francs too much for tomatoes, ekiee
+Tokens: 18
+Token Breakdown:
+  ADJECTIVE: 1
+  ADVERB: 1
+  CONNECTOR: 3
+  INTERJECTION: 1
+  NOUN: 2
+  NUMBER: 2
+  PIDGIN_MARKER: 3
+  PREPOSITION: 1
+  PRONOUN: 1
+  PROPER_NOUN: 1
+  SUBJUNCTIVE: 1
+  VERB: 1
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_008
+Text: Chop na fresh, fresh! Come take am now, I give you good price, no wahala
+Tokens: 19
+Token Breakdown:
+  ADJECTIVE: 3
+  ADVERB: 1
+  CONNECTOR: 3
+  INTERJECTION: 1
+  NEGATION: 1
+  NOUN: 2
+  PIDGIN_MARKER: 2
+  PRONOUN: 2
+  PUNCTUATION: 1
+  VERB: 3
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_009
+Text: Brother, the bendskin dey charge too much, five hundred for two kilometers, c'est cher ooo
+Tokens: 17
+Token Breakdown:
+  ADJECTIVE: 1
+  ADVERB: 1
+  ARTICLE: 1
+  CODE_MIXED: 1
+  CONNECTOR: 3
+  INTERJECTION: 1
+  NOUN: 2
+  NUMBER: 3
+  PIDGIN_VERB: 1
+  PREPOSITION: 1
+  PROPER_NOUN: 1
+  VERB: 1
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_010
+Text: They say checkpoint ahead, document dey for front, make we be careful pass
+Tokens: 15
+Token Breakdown:
+  ADJECTIVE: 1
+  ADVERB: 2
+  CONNECTOR: 2
+  NOUN: 3
+  PIDGIN_VERB: 1
+  PREPOSITION: 1
+  PRONOUN: 2
+  SUBJUNCTIVE: 1
+  VERB: 2
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_011
+Text: Rain don fall so, the road done become mud, car stuck for quartier Mambanda
+Tokens: 16
+Token Breakdown:
+  ADVERB: 1
+  ARTICLE: 1
+  CONNECTOR: 2
+  NOUN: 5
+  PIDGIN_VERB: 2
+  PREPOSITION: 1
+  PROPER_NOUN: 1
+  VERB: 3
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_012
+Text: Petrol dey scarce, pump don empty again, we go wait small before go fill tank
+Tokens: 17
+Token Breakdown:
+  ADJECTIVE: 1
+  ADVERB: 1
+  CONNECTOR: 2
+  NOUN: 3
+  PIDGIN_MARKER: 1
+  PIDGIN_VERB: 2
+  PREPOSITION: 1
+  PRONOUN: 1
+  VERB: 5
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_013
+Text: How much for this phone airtime? OK, load me two thousand balance make I browse
+Tokens: 17
+Token Breakdown:
+  ADJECTIVE: 1
+  ARTICLE: 1
+  CONNECTOR: 1
+  INTERJECTION: 1
+  NOUN: 3
+  NUMBER: 2
+  PIDGIN_MARKER: 1
+  PREPOSITION: 1
+  PRONOUN: 1
+  PUNCTUATION: 1
+  QUESTION_WORD: 1
+  SUBJUNCTIVE: 1
+  VERB: 2
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_014
+Text: Lecture done start, prof say come sit down, but the class dey too crowded, hmmm
+Tokens: 18
+Token Breakdown:
+  ADJECTIVE: 1
+  ADVERB: 2
+  ARTICLE: 1
+  CONNECTOR: 4
+  INTERJECTION: 1
+  NOUN: 2
+  PIDGIN_VERB: 2
+  PROPER_NOUN: 1
+  VERB: 4
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_015
+Text: After exam finish, we go for beer na, relax small, this semester done tire me
+Tokens: 18
+Token Breakdown:
+  ARTICLE: 1
+  CONNECTOR: 3
+  NOUN: 3
+  PIDGIN_MARKER: 3
+  PIDGIN_VERB: 1
+  PREPOSITION: 2
+  PRONOUN: 1
+  VERB: 4
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
