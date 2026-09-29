@@ -1,5 +1,5 @@
 {
- "updated": "2026-09-29T12:17:51",
+ "updated": "2026-09-29T12:20:17",
  "words": {
   "abeg": {
    "count": 2,
@@ -34,7 +34,7 @@
    "known": true
   },
   "at": {
-   "count": 1,
+   "count": 2,
    "known": true
   },
   "bad": {
@@ -70,7 +70,7 @@
    "known": true
   },
   "brother": {
-   "count": 3,
+   "count": 4,
    "known": true
   },
   "browse": {
@@ -94,7 +94,7 @@
    "known": true
   },
   "carrefour": {
-   "count": 1,
+   "count": 2,
    "known": true
   },
   "charge": {
@@ -134,7 +134,7 @@
    "known": true
   },
   "dey": {
-   "count": 16,
+   "count": 24,
    "known": true
   },
   "do": {
@@ -150,7 +150,7 @@
    "known": true
   },
   "done": {
-   "count": 5,
+   "count": 6,
    "known": true
   },
   "down": {
@@ -166,7 +166,7 @@
    "known": true
   },
   "drop": {
-   "count": 1,
+   "count": 2,
    "known": true
   },
   "eh": {
@@ -346,7 +346,7 @@
    "known": true
   },
   "me": {
-   "count": 6,
+   "count": 8,
    "known": true
   },
   "message": {
@@ -390,7 +390,7 @@
    "known": true
   },
   "na": {
-   "count": 6,
+   "count": 7,
    "known": true
   },
   "network": {
@@ -409,12 +409,16 @@
    "count": 2,
    "known": true
   },
+  "o": {
+   "count": 1,
+   "known": false
+  },
   "officer": {
    "count": 1,
    "known": true
   },
   "ok": {
-   "count": 1,
+   "count": 8,
    "known": true
   },
   "one": {
@@ -554,11 +558,11 @@
    "known": true
   },
   "small": {
-   "count": 7,
+   "count": 8,
    "known": true
   },
   "so": {
-   "count": 1,
+   "count": 5,
    "known": true
   },
   "start": {
@@ -598,7 +602,7 @@
    "known": true
   },
   "the": {
-   "count": 14,
+   "count": 15,
    "known": true
   },
   "they": {
@@ -618,7 +622,7 @@
    "known": true
   },
   "tire": {
-   "count": 2,
+   "count": 3,
    "known": true
   },
   "tomatoes": {
@@ -634,7 +638,7 @@
    "known": true
   },
   "traffic": {
-   "count": 1,
+   "count": 2,
    "known": true
   },
   "transport": {
@@ -690,11 +694,11 @@
    "known": true
   },
   "yaoundé": {
-   "count": 3,
+   "count": 4,
    "known": true
   },
   "you": {
-   "count": 2,
+   "count": 10,
    "known": true
   },
   "your": {
