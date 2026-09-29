@@ -24,7 +24,8 @@ sys.path.insert(0, os.path.join(HERE, "src"))
 sys.path.insert(0, os.path.join(HERE, "tests"))
 
 import grammar
-from dictionary import DICTIONARY, KNOWN, WordBank
+import userdict
+from dictionary import WordBank, build_dictionary
 from lexical_analyzer import TokenType
 from parser import analyze_robust
 from semantic_analyzer import SemanticAnalyzer
@@ -120,6 +121,9 @@ class AfjenApp:
         self.bank = WordBank()
         self.lang = tk.StringVar(value="en")
         self.last_output = ""
+        self.last_pair = ("", "")
+        self.history = []
+        self._live_job = None
         self._style()
         self._header()
         self._tabs()
@@ -174,13 +178,14 @@ class AfjenApp:
 
     def _refresh_header(self):
         self.header_stats.configure(
-            text=f"{len(DICTIONARY)} dictionary words   ·   {self.bank.total_unique} words collected from your text")
+            text=f"{len(build_dictionary())} dictionary words   ·   {self.bank.total_unique} words collected from your text")
 
     def _tabs(self):
         self.nb = ttk.Notebook(self.root)
         self.nb.pack(fill=tk.BOTH, expand=True, pady=(4, 0))
         self._tab_translate()
         self._tab_dictionary()
+        self._tab_insights()
         self._tab_samples()
         self._tab_tests()
         self._tab_grammar()
@@ -229,7 +234,7 @@ class AfjenApp:
                                               insertbackground=GREEN, padx=14, pady=12, wrap=tk.WORD)
         box.pack(fill=tk.X, padx=18, pady=(0, 8))
         self.input.insert("1.0", "Brother, drop me na at Carrefour Yaoundé, the traffic done tire me small")
-        self.input.bind("<KeyRelease>", lambda e: self._count_words())
+        self.input.bind("<KeyRelease>", self._on_key)
         row = tk.Frame(card, bg=CARD)
         row.pack(fill=tk.X, padx=18, pady=(0, 6))
         RoundButton(row, "Translate & Analyze", self.analyze).pack(side=tk.LEFT)
@@ -238,6 +243,9 @@ class AfjenApp:
         RoundButton(row, "Paste", self.paste, bg="#E7ECF5", hover="#D8DFEC", fg=INK, bold=False).pack(side=tk.LEFT)
         self.count_label = tk.Label(row, text="", font=(FONT, 10), fg=MUTED, bg=CARD)
         self.count_label.pack(side=tk.RIGHT)
+        self.live = tk.BooleanVar(value=True)
+        tk.Checkbutton(row, text="Live translate", variable=self.live, font=(FONT, 10), fg=MUTED, bg=CARD,
+                       activebackground=CARD, selectcolor=CARD, highlightthickness=0, bd=0).pack(side=tk.RIGHT, padx=16)
         chips = tk.Frame(card, bg=CARD)
         chips.pack(fill=tk.X, padx=18, pady=(4, 16))
         tk.Label(chips, text="Try one:", font=(FONT, 9), fg=MUTED, bg=CARD).pack(side=tk.LEFT, padx=(0, 8))
@@ -263,16 +271,19 @@ class AfjenApp:
             b.bind("<Button-1>", lambda e, c=code: self.set_lang(c))
             self.lang_buttons[code] = b
         self._paint_lang()
-        copy = tk.Label(top, text="Copy", font=(FONT, 10, "underline"), fg=GREEN, bg=CARD, cursor="hand2")
-        copy.pack(side=tk.RIGHT, padx=16)
-        copy.bind("<Button-1>", lambda e: self.copy_translation())
+        for label, cmd in (("Save…", self.save_translation), ("Copy both", self.copy_both), ("Copy", self.copy_translation)):
+            lk = tk.Label(top, text=label, font=(FONT, 10, "underline"), fg=GREEN, bg=CARD, cursor="hand2")
+            lk.pack(side=tk.RIGHT, padx=10)
+            lk.bind("<Button-1>", lambda e, c=cmd: c())
         box, self.output = self._scrolled_text(card, height=2, font=(FONT, 16), bg=CARD, fg=INK, padx=14, pady=6,
                                                wrap=tk.WORD)
         box.pack(fill=tk.X, padx=18, pady=(0, 4))
         self.output.tag_configure("unk", foreground="#B25E00", underline=True)
         self.note = tk.Label(card, text="", font=(FONT, 9), fg=MUTED, bg=CARD, anchor="w", justify=tk.LEFT,
                              wraplength=1180)
-        self.note.pack(fill=tk.X, padx=18, pady=(0, 14))
+        self.note.pack(fill=tk.X, padx=18, pady=(0, 6))
+        self.chip_row = tk.Frame(card, bg=CARD)
+        self.chip_row.pack(fill=tk.X, padx=18, pady=(0, 10))
 
         # -- step 3: analysis
         tk.Label(pad, text="3 · HOW AFJEN READ IT", font=(FONT, 8, "bold"), fg=MUTED, bg=BG).pack(
@@ -333,6 +344,13 @@ class AfjenApp:
         self.tree_text.tag_configure("frag", foreground=MID_FG, font=(FONT, 9, "italic"))
 
     # --------------------------------------------------------- input helpers --
+    def _on_key(self, _event=None):
+        self._count_words()
+        if self.live.get():
+            if self._live_job:
+                self.root.after_cancel(self._live_job)
+            self._live_job = self.root.after(650, self.analyze)
+
     def _count_words(self):
         text = self.input.get("1.0", tk.END)
         n = len(re.findall(r"[A-Za-zÀ-ÿ'’-]+", text))
@@ -368,6 +386,27 @@ class AfjenApp:
         self.lang.set(code)
         self._paint_lang()
         self.analyze()
+
+    def copy_both(self):
+        en = self._translate_all(self.input.get("1.0", tk.END).strip(), "en")[0]
+        fr = self._translate_all(self.input.get("1.0", tk.END).strip(), "fr")[0]
+        self.root.clipboard_clear()
+        self.root.clipboard_append(f"English: {en}" + chr(10) + f"Français: {fr}")
+        self.note.configure(text="✔ English and French copied to the clipboard.")
+
+    def save_translation(self):
+        text = self.input.get("1.0", tk.END).strip()
+        if not text:
+            return
+        path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text", "*.txt")],
+                                            initialfile="afjen_translation.txt")
+        if path:
+            en = self._translate_all(text, "en")[0]
+            fr = self._translate_all(text, "fr")[0]
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("Original:" + chr(10) + text + chr(10) * 2 + "English:" + chr(10) + en + chr(10) * 2
+                        + "Français:" + chr(10) + fr + chr(10))
+            self.note.configure(text=f"✔ Saved to {os.path.basename(path)}.")
 
     def copy_translation(self):
         self.root.clipboard_clear()
@@ -420,8 +459,13 @@ class AfjenApp:
             self.badge.configure(text="⚙ Automatic translation", bg=MID_BG, fg=MID_FG)
             note = "Produced by AFJEN's rule engine: dey → is/are -ing, done → has/have, go → will, no fit → cannot."
         if unknown:
-            note += f"   New words kept as written: {', '.join(unknown[:12])}{'…' if len(unknown) > 12 else ''}."
+            note += "   Some words are new to AFJEN - click one to teach it:"
         self.note.configure(text=note)
+        for child in self.chip_row.winfo_children():
+            child.destroy()
+        for word in unknown[:10]:
+            RoundButton(self.chip_row, "+ " + word, lambda w=word: self.teach(w), bg="#FFF1C9", hover="#FBE29A",
+                        fg=MID_FG, size=9, bold=True, padx=12, pady=5, radius=10).pack(side=tk.LEFT, padx=(0, 8))
 
         result = analyze_robust(text)
         self._show_tokens(result)
@@ -430,6 +474,13 @@ class AfjenApp:
                  if t.type not in (TokenType.PUNCTUATION, TokenType.CONNECTOR) or t.value.lower() in ("and", "but", "or")]
         self.bank.record(words)
         self._refresh_header()
+        if text not in self.history[:1]:
+            self.history.insert(0, text)
+            del self.history[30:]
+            self.history_list.delete(0, tk.END)
+            for item in self.history:
+                self.history_list.insert(tk.END, item.replace(chr(10), " ")[:110])
+        self._draw_chart()
 
         cov = result["coverage"]
         n_sent = len(result["sentences"])
@@ -496,24 +547,74 @@ class AfjenApp:
         self.nb.add(tab, text="  ☰  Dictionary  ")
         wrap = tk.Frame(tab, bg=BG)
         wrap.pack(fill=tk.BOTH, expand=True, padx=26, pady=16)
+
+        # add-a-word form
+        form = self._card(wrap, "Teach AFJEN a new word", fill=tk.X)
+        row = tk.Frame(form, bg=CARD)
+        row.pack(fill=tk.X, padx=18, pady=(0, 6))
+        self.f_word, self.f_en, self.f_fr = tk.StringVar(), tk.StringVar(), tk.StringVar()
+        self.f_type, self.f_gender = tk.StringVar(value="noun"), tk.StringVar(value="m")
+
+        def field(label, var, width, col):
+            box = tk.Frame(row, bg=CARD)
+            box.grid(row=0, column=col, padx=(0, 12), sticky="w")
+            tk.Label(box, text=label, font=(FONT, 9), fg=MUTED, bg=CARD).pack(anchor="w")
+            entry = tk.Entry(box, textvariable=var, font=(FONT, 12), relief=tk.FLAT, bg="#F6F8FC", fg=INK,
+                             highlightthickness=1, highlightbackground=LINE, highlightcolor=GREEN, width=width,
+                             insertbackground=GREEN)
+            entry.pack(ipady=6)
+            return entry
+
+        self.e_word = field("Word (Pidgin / slang)", self.f_word, 16, 0)
+        box = tk.Frame(row, bg=CARD)
+        box.grid(row=0, column=1, padx=(0, 12), sticky="w")
+        tk.Label(box, text="Type", font=(FONT, 9), fg=MUTED, bg=CARD).pack(anchor="w")
+        ttk.Combobox(box, textvariable=self.f_type, values=userdict.TYPES, state="readonly", width=12,
+                     font=(FONT, 11)).pack(ipady=4)
+        self.e_en = field("English meaning", self.f_en, 22, 2)
+        self.e_fr = field("Français (infinitive for verbs)", self.f_fr, 22, 3)
+        box = tk.Frame(row, bg=CARD)
+        box.grid(row=0, column=4, padx=(0, 12), sticky="w")
+        tk.Label(box, text="Gender (FR)", font=(FONT, 9), fg=MUTED, bg=CARD).pack(anchor="w")
+        ttk.Combobox(box, textvariable=self.f_gender, values=["m", "f"], state="readonly", width=4,
+                     font=(FONT, 11)).pack(ipady=4)
+        btn = tk.Frame(row, bg=CARD)
+        btn.grid(row=0, column=5, sticky="s")
+        RoundButton(btn, "+ Add word", self.add_word_clicked, padx=18, pady=9).pack()
+        for e in (self.e_word, self.e_en, self.e_fr):
+            e.bind("<Return>", lambda ev: self.add_word_clicked())
+        self.form_msg = tk.Label(form, text="Tip: type a word you meet in the street, give its meanings, and it works "
+                                            "everywhere at once - translation, tokens and grammar.",
+                                 font=(FONT, 9), fg=MUTED, bg=CARD, anchor="w", justify=tk.LEFT, wraplength=1180)
+        self.form_msg.pack(fill=tk.X, padx=18, pady=(2, 14))
+
+        # search / count
         top = tk.Frame(wrap, bg=BG)
-        top.pack(fill=tk.X, pady=(0, 10))
+        top.pack(fill=tk.X, pady=(12, 8))
         self.dict_count = tk.Label(top, text="", font=(FONT, 12, "bold"), fg=INK, bg=BG)
         self.dict_count.pack(side=tk.LEFT)
+        RoundButton(top, "Import CSV", self.import_words, bg="#E1E7F1", hover="#D2DAE9", fg=INK, bold=False,
+                    size=9, padx=14, pady=6, parent_bg=BG).pack(side=tk.RIGHT, padx=(8, 0))
+        RoundButton(top, "Export CSV", self.export_words, bg="#E1E7F1", hover="#D2DAE9", fg=INK, bold=False,
+                    size=9, padx=14, pady=6, parent_bg=BG).pack(side=tk.RIGHT, padx=(8, 0))
+        RoundButton(top, "Remove selected ★", self.remove_selected, bg="#FBE4E6", hover="#F5CDD1", fg="#A3121F",
+                    bold=False, size=9, padx=14, pady=6, parent_bg=BG).pack(side=tk.RIGHT, padx=(8, 0))
         self.search = tk.StringVar()
         self.search.trace_add("write", lambda *a: self._fill_dictionary())
         entry = tk.Entry(top, textvariable=self.search, font=(FONT, 12), relief=tk.FLAT, bg=CARD, fg=INK,
-                         highlightthickness=1, highlightbackground=LINE, highlightcolor=GREEN, width=32,
+                         highlightthickness=1, highlightbackground=LINE, highlightcolor=GREEN, width=26,
                          insertbackground=GREEN)
-        entry.pack(side=tk.RIGHT, ipady=7)
+        entry.pack(side=tk.RIGHT, ipady=6)
         tk.Label(top, text="Search  ", font=(FONT, 10), fg=MUTED, bg=BG).pack(side=tk.RIGHT)
+
         card = self._card(wrap, None, fill=tk.BOTH, expand=True)
         cols = ("Word", "Type", "English", "Français")
         self.dict_tree = ttk.Treeview(card, columns=cols, show="headings")
-        for col, w in zip(cols, (170, 140, 300, 300)):
+        for col, w in zip(cols, (170, 150, 300, 300)):
             self.dict_tree.heading(col, text=col)
             self.dict_tree.column(col, width=w, anchor="w")
         self.dict_tree.tag_configure("odd", background="#F6F9FD")
+        self.dict_tree.tag_configure("mine", background="#FFF6D6")
         sb = ttk.Scrollbar(card, orient=tk.VERTICAL, command=self.dict_tree.yview)
         self.dict_tree.configure(yscrollcommand=sb.set)
         sb.pack(side=tk.RIGHT, fill=tk.Y)
@@ -524,15 +625,18 @@ class AfjenApp:
         self._fill_dictionary()
 
     def _fill_dictionary(self):
+        self.entries = build_dictionary()
         q = self.search.get().strip().lower()
         self.dict_tree.delete(*self.dict_tree.get_children())
         shown = 0
-        for i, row in enumerate(DICTIONARY):
+        for i, row in enumerate(self.entries):
             if q and not any(q in str(c).lower() for c in row):
                 continue
-            self.dict_tree.insert("", tk.END, values=row, tags=("odd",) if i % 2 else ())
+            tag = "mine" if row[1].startswith("★") else ("odd" if i % 2 else "")
+            self.dict_tree.insert("", tk.END, values=row, tags=(tag,) if tag else ())
             shown += 1
-        self.dict_count.configure(text=f"{shown} of {len(DICTIONARY)} words")
+        mine = sum(1 for r in self.entries if r[1].startswith("★"))
+        self.dict_count.configure(text=f"{shown} of {len(self.entries)} words   ·   {mine} added by you ★")
         self.dict_refresh_counts()
 
     def dict_refresh_counts(self):
@@ -540,8 +644,114 @@ class AfjenApp:
             return
         unk = self.bank.unknown_words
         msg = f"Word bank: {self.bank.total_unique} different words collected from the text you analysed"
-        msg += f"  ({len(unk)} new to the dictionary: {', '.join(unk[:15])}{'…' if len(unk) > 15 else ''})" if unk else "."
+        msg += (f"  ·  {len(unk)} not in the dictionary yet: {', '.join(unk[:15])}{'…' if len(unk) > 15 else ''}"
+                if unk else ".")
         self.collected.configure(text=msg)
+
+    def teach(self, word):
+        """Jump to the dictionary form with a word pre-filled (used by the 'new word' chips)."""
+        self.nb.select(1)
+        self.f_word.set(word)
+        self.f_en.set("")
+        self.f_fr.set("")
+        self.e_en.focus_set()
+
+    def add_word_clicked(self):
+        ok, msg = userdict.add_word(self.f_word.get(), self.f_type.get(), self.f_en.get(), self.f_fr.get(),
+                                    self.f_gender.get())
+        self.form_msg.configure(text=("✔ " if ok else "✘ ") + msg, fg=OK_FG if ok else "#A3121F")
+        if ok:
+            self.f_word.set("")
+            self.f_en.set("")
+            self.f_fr.set("")
+            self.e_word.focus_set()
+            self._fill_dictionary()
+            self._refresh_header()
+            self.analyze()
+
+    def remove_selected(self):
+        sel = self.dict_tree.selection()
+        if not sel:
+            self.form_msg.configure(text="Select one of your ★ words in the list first.", fg=MUTED)
+            return
+        word, kind = self.dict_tree.item(sel[0])["values"][:2]
+        if not str(kind).startswith("★"):
+            self.form_msg.configure(text="Only words you added (★) can be removed.", fg=MUTED)
+            return
+        userdict.remove_word(str(word))
+        self.form_msg.configure(text=f"Removed “{word}”.", fg=MUTED)
+        self._fill_dictionary()
+        self._refresh_header()
+        self.analyze()
+
+    def export_words(self):
+        path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV", "*.csv")],
+                                            initialfile="afjen_my_words.csv")
+        if path:
+            n = userdict.export_csv(path)
+            self.form_msg.configure(text=f"Exported {n} of your words to {os.path.basename(path)}.", fg=MUTED)
+
+    def import_words(self):
+        path = filedialog.askopenfilename(filetypes=[("CSV", "*.csv"), ("All files", "*.*")])
+        if path:
+            added, skipped = userdict.import_csv(path)
+            self.form_msg.configure(text=f"Imported {added} words ({skipped} skipped).", fg=MUTED)
+            self._fill_dictionary()
+            self._refresh_header()
+            self.analyze()
+
+    # ------------------------------------------------------- tab: insights --
+    def _tab_insights(self):
+        tab = ttk.Frame(self.nb)
+        self.nb.add(tab, text="  ▤  Insights  ")
+        wrap = tk.Frame(tab, bg=BG)
+        wrap.pack(fill=tk.BOTH, expand=True, padx=26, pady=16)
+        wrap.columnconfigure(0, weight=1, uniform="i")
+        wrap.columnconfigure(1, weight=1, uniform="i")
+        wrap.rowconfigure(0, weight=1)
+        left = tk.Frame(wrap, bg=BG)
+        left.grid(row=0, column=0, sticky="nsew", padx=(0, 8))
+        right = tk.Frame(wrap, bg=BG)
+        right.grid(row=0, column=1, sticky="nsew", padx=(8, 0))
+        c1 = self._card(left, "Most used words (your word bank)", fill=tk.BOTH, expand=True)
+        self.chart = tk.Canvas(c1, bg=CARD, highlightthickness=0)
+        self.chart.pack(fill=tk.BOTH, expand=True, padx=14, pady=(0, 14))
+        self.chart.bind("<Configure>", lambda e: self._draw_chart())
+        c2 = self._card(right, "History (click to reopen)", fill=tk.BOTH, expand=True)
+        box = tk.Frame(c2, bg=CARD)
+        box.pack(fill=tk.BOTH, expand=True, padx=14, pady=(0, 14))
+        self.history_list = tk.Listbox(box, font=(FONT, 11), relief=tk.FLAT, bg="#FAFBFE", fg=INK, activestyle="none",
+                                       selectbackground="#CDEEE2", selectforeground=INK, highlightthickness=0)
+        sb = ttk.Scrollbar(box, orient=tk.VERTICAL, command=self.history_list.yview)
+        self.history_list.configure(yscrollcommand=sb.set)
+        sb.pack(side=tk.RIGHT, fill=tk.Y)
+        self.history_list.pack(fill=tk.BOTH, expand=True)
+        self.history_list.bind("<<ListboxSelect>>", self.open_history)
+
+    def _draw_chart(self):
+        c = self.chart
+        c.delete("all")
+        words = self.bank.top_words(10)
+        if not words:
+            c.create_text(20, 20, anchor="nw", text="Analyse some text and your most used words appear here.",
+                          font=(FONT, 11), fill=MUTED)
+            return
+        w, h = max(c.winfo_width(), 300), max(c.winfo_height(), 200)
+        peak = max(n for _, n in words)
+        row_h = min(38, (h - 10) / len(words))
+        for i, (word, n) in enumerate(words):
+            y = 8 + i * row_h
+            c.create_text(4, y + row_h / 2, anchor="w", text=word, font=(FONT, 10, "bold"), fill=INK)
+            bar = 110 + (w - 190) * n / peak
+            round_rect(c, 110, y + 5, max(bar, 122), y + row_h - 5, 6, fill=GREEN if i % 2 == 0 else "#3DB08F",
+                       outline="")
+            c.create_text(max(bar, 122) + 8, y + row_h / 2, anchor="w", text=str(n), font=(FONT, 10), fill=MUTED)
+
+    def open_history(self, _event=None):
+        sel = self.history_list.curselection()
+        if sel:
+            self.nb.select(0)
+            self.load(self.history[sel[0]])
 
     # --------------------------------------------------------- tab: samples --
     def _tab_samples(self):
@@ -689,6 +899,10 @@ class AfjenApp:
             "  1. Type or paste any text on the Translate tab (one word or many paragraphs).\n"
             "  2. Press “Translate & Analyze” (or Ctrl+Enter). Switch English / Français at any time.\n"
             "  3. Read the translation, then look at the words and sentence structure AFJEN found.\n\n"
+            "Teach it new words\n"
+            "  On the Dictionary tab (or by clicking a yellow “+ word” chip under a translation) add any word with its\n"
+            "  English and French meaning. It is saved in data/user_dictionary.json and works immediately in the\n"
+            "  lexer, the parser and the translator. Export / import your words as CSV.\n\n"
             "Nothing is refused\n"
             "  Any text is accepted. Unknown words are kept as written and added to your word bank; sentences that\n"
             "  are looser than the strict grammar are analysed clause by clause and word by word.\n\n"

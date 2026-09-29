@@ -98,7 +98,8 @@ NOUNS = {
     "documents": ("documents", "papiers", "m", True), "front": ("front", "devant", "m", False),
     "transport": ("transport", "transport", "m", False), "traffic": ("traffic", "embouteillages", "m", True),
     "bendskin": ("bendskin", "bendskin", "m", False), "morning": ("morning", "matin", "m", False),
-    "kilometers": ("kilometres", "kilomètres", "m", True), "airtime": ("airtime", "crédit", "m", False),
+    "kilometers": ("kilometres", "kilomètres", "m", True), "kontri": ("country", "pays", "m", False),
+    "njangi": ("savings group", "tontine", "f", False), "moto": ("motorbike", "moto", "f", False), "airtime": ("airtime", "crédit", "m", False),
     "phone": ("phone", "téléphone", "m", False), "balance": ("credit", "crédit", "m", False),
     "ticket": ("ticket", "billet", "m", False), "driver": ("driver", "chauffeur", "m", False),
     "chauffeur": ("driver", "chauffeur", "m", False), "police": ("police", "police", "f", False),
@@ -133,7 +134,7 @@ ADJ = {"fresh": ("fresh", "frais"), "good": ("good", "bon"), "scarce": ("scarce"
        "cold": ("cold", "froid"), "heavy": ("heavy", "lourd"), "dark": ("dark", "sombre"), "long": ("long", "long"),
        "hungry": ("hungry", "affamé"), "big": ("big", "grand"), "bad": ("bad", "mauvais"), "new": ("new", "nouveau"),
        "cher": ("expensive", "cher"), "down-down": ("down", "en panne")}
-ADV = {"again": ("again", "encore"), "so": ("so much", "tellement"), "too": ("too", "trop"),
+ADV = {"never": ("never", "jamais"), "neva": ("never", "jamais"), "neba": ("never", "jamais"), "again": ("again", "encore"), "so": ("so much", "tellement"), "too": ("too", "trop"),
        "just": ("just", "juste"), "even": ("even", "même"), "already": ("already", "déjà"),
        "always": ("always", "toujours"), "now": ("now", "maintenant"), "down": ("down", "en bas"),
        "pass": ("more", "plus"), "ahead": ("ahead", "devant"), "here": ("here", "ici"), "there": ("there", "là"),
@@ -164,11 +165,11 @@ EN_IRREG = {  # base: (third, pp, ing)
     "sleep": ("sleeps", "slept", "sleeping"), "pay": ("pays", "paid", "paying"), "run": ("runs", "run", "running"),
     "stop": ("stops", "stopped", "stopping"), "hold": ("holds", "held", "holding"), "stand": ("stands", "stood", "standing"),
     "drive": ("drives", "driven", "driving"), "park": ("parks", "parked", "parking"), "hala": ("gives", "given", "giving"),
-    "stuck": ("is stuck", "been stuck", "being stuck"), "waka": ("walks", "walked", "walking"),
+    "stuck": ("is stuck", "been stuck", "being stuck"), "tchop": ("eats", "eaten", "eating"), "waka": ("walks", "walked", "walking"),
     "fill": ("fills", "filled", "filling"), "load": ("loads", "loaded", "loading"),
     "start": ("starts", "started", "starting"), "reach": ("reaches", "reached", "reaching"),
 }
-EN_BASE = {"sabi": "know", "komot": "leave", "tif": "steal", "hala": "give", "waka": "walk", "tire": "wear out", "stuck": "be stuck", "fill": "fill up"}
+EN_BASE = {"tchop": "eat", "sabi": "know", "komot": "leave", "tif": "steal", "hala": "give", "waka": "walk", "tire": "wear out", "stuck": "be stuck", "fill": "fill up"}
 
 # FR: base -> (infinitive, past participle, auxiliary, imperative-tu, present 3sg override or None)
 FR = {
@@ -210,7 +211,7 @@ FR = {
     "look": ("regarder", "regardé", "avoir", "regarde"), "want": ("vouloir", "voulu", "avoir", "veuille"),
     "need": ("avoir besoin de", "eu besoin de", "avoir", "aie besoin de"), "like": ("aimer", "aimé", "avoir", "aime"),
     "love": ("aimer", "aimé", "avoir", "aime"), "help": ("aider", "aidé", "avoir", "aide"),
-    "think": ("penser", "pensé", "avoir", "pense"),
+    "think": ("penser", "pensé", "avoir", "pense"), "tchop": ("manger", "mangé", "avoir", "mange"),
 }
 # 3rd-person singular / plural present for French (regular -er/-re/-ir handled by rule, exceptions here)
 FR_PRES = {
@@ -230,9 +231,14 @@ FR_PRES_1P = {"aller": "allons", "être": "sommes", "faire": "faisons", "dire": 
               "attendre": "attendons", "commencer": "commençons", "manger": "mangeons", "voyager": "voyageons"}
 STATE_VERBS = {"stuck"}
 NOUN_LIKE = {TokenType.NOUN, TokenType.PROPER_NOUN, TokenType.PRONOUN, TokenType.NUMBER, TokenType.ARTICLE}
-PRON_EN = {"i": ("I", "je", "1s"), "we": ("we", "nous", "1p"), "you": ("you", "tu", "2s"), "they": ("they", "ils", "3p"),
-           "it": ("it", "il", "3s"), "him": ("him", "lui", "3s"), "her": ("her", "elle", "3s"), "it's": ("it's", "c'est", "3s")}
+PRON_EN = {"yu": ("you", "tu", "2s"), "mi": ("I", "je", "1s"), "wi": ("we", "nous", "1p"),
+           "wuna": ("you all", "vous", "2p"), "una": ("you all", "vous", "2p"), "i": ("I", "je", "1s"), "we": ("we", "nous", "1p"), "you": ("you", "tu", "2s"), "they": ("they", "ils", "3p"),
+           "it": ("it", "il", "3s"), "she": ("she", "elle", "3s"), "he": ("he", "il", "3s"), "him": ("him", "lui", "3s"), "her": ("her", "elle", "3s"), "it's": ("it's", "c'est", "3s")}
 OBJ_EN = {"i": "me", "we": "us", "you": "you", "they": "them"}
+
+
+POSSESSIVE_FR = {"my": ("mon", "ma", "mes"), "your": ("ton", "ta", "tes"), "our": ("notre", "notre", "nos"),
+                 "their": ("leur", "leur", "leurs"), "his": ("son", "sa", "ses")}
 
 
 def _fr_conjugate(verb: str, person: str) -> str:
@@ -255,6 +261,13 @@ def _fr_conjugate(verb: str, person: str) -> str:
     if inf in FR_PRES:
         return FR_PRES[inf][0]
     return inf[:-2] + "e" if inf.endswith("er") else inf
+
+
+PAST_EN = {"go": "went", "eat": "ate", "see": "saw", "come": "came", "give": "gave", "take": "took", "sit": "sat",
+           "say": "said", "buy": "bought", "know": "knew", "tell": "told", "bring": "brought", "leave": "left",
+           "drink": "drank", "run": "ran", "pay": "paid", "sell": "sold", "fall": "fell", "sleep": "slept",
+           "drive": "drove", "stand": "stood", "hold": "held", "become": "became", "do": "did", "be": "was",
+           "tchop": "ate", "hala": "gave", "sabi": "knew", "cut": "cut", "stuck": "was stuck"}
 
 
 def _en_forms(base: str) -> Tuple[str, str, str]:
@@ -405,7 +418,7 @@ class Translator:
         body = []
         for t in toks:
             if t.type == TokenType.ARTICLE and art is None and not body:
-                art = t.value.lower()
+                art = {"dis": "this", "dat": "that"}.get(t.value.lower(), t.value.lower())
             else:
                 body.append(t)
         words = [self._word(t, lang) for t in body]
@@ -413,7 +426,7 @@ class Translator:
         entry = NOUNS.get(head)
         if lang == "en":
             phrase = " ".join(words)
-            if art in ("the", "this", "that", "these", "those", "a", "an"):
+            if art in ("the", "this", "that", "these", "those", "a", "an", "my", "your", "our", "their", "his"):
                 if art in ("a", "an"):
                     art = "an" if phrase[:1].lower() in "aeiou" else "a"
                 if entry and head in ("light", "traffic", "internet"):
@@ -433,6 +446,10 @@ class Translator:
             return d + ("" if d.endswith("'") else " ") + name
         if art in ("this", "that", "these", "those"):
             d = "ces" if plural else ("cet" if gender == "m" and vowel else ("ce" if gender == "m" else "cette"))
+            return f"{d} {name}"
+        if art in POSSESSIVE_FR:
+            m, f, pl = POSSESSIVE_FR[art]
+            d = pl if plural else (m if gender == "m" or vowel else f)
             return f"{d} {name}"
         if art in ("a", "an"):
             return ("des " if plural else ("un " if gender == "m" else "une ")) + name
@@ -719,6 +736,27 @@ class Translator:
             a = _be(person, lang)
             return fmt(a, "stuck" if en else "coincé" + ("e" if subj_key in NOUNS and NOUNS[subj_key][2] == "f" else ""), a)
         # aspect handling
+        if aux == "di":
+            aux = "dey"
+        if aux in ("bin", "wan", "mos") and verbs:
+            b = " ".join(_en_base(x) if en else (FR[x][0] if x in FR else x) for x in verbs)
+            if aux == "bin":
+                if en:
+                    v0 = verbs[0]
+                    past = PAST_EN.get(v0, _en_forms(v0)[1])
+                    rest_v = " ".join(_en_base(x) for x in verbs[1:])
+                    return fmt("", (past + " " + rest_v).strip(), None)
+                entry = FR.get(verbs[0])
+                a = _have(person, lang) if not entry or entry[2] == "avoir" else _be(person, lang)
+                pp = entry[1] if entry else verbs[0]
+                return f"{subj_s} {a} {pp} {comps}".strip(), None, ""
+            if aux == "wan":
+                if en:
+                    return fmt("wants to" if person == "3s" else "want to", b, None)
+                return f"{subj_s} {dict(zip(('1s', '2s', '3s', '1p', '2p', '3p'), ('veux', 'veux', 'veut', 'voulons', 'voulez', 'veulent'))).get(person, 'veut')} {b} {comps}".strip(), None, ""
+            if en:
+                return fmt("must", b, None)
+            return f"{subj_s} {dict(zip(('1s', '2s', '3s', '1p', '2p', '3p'), ('dois', 'dois', 'doit', 'devons', 'devez', 'doivent'))).get(person, 'doit')} {b} {comps}".strip(), None, ""
         if aux == "dey" and not verbs:
             a = _be(person, lang)
             if not comps:
@@ -770,7 +808,24 @@ class Translator:
                     return fmt("can't" if neg else "can", b, "can't" if neg else "can")
                 return f"{subj_s} {'ne peux pas' if person in ('1s', '2s') and neg else ('ne peut pas' if neg else 'peut')} {b} {comps}".strip(), None, ""
             return fmt("can't" if neg else "can", "", None) if en else (f"{subj_s} {'ne peut pas' if neg else 'peut'} {comps}".strip(), None, "")
+        # "never": no do-support in English, ne ... jamais in French
+        pre_never = [t for t in rest[:1] if t.type == TokenType.ADVERB and t.value.lower() in ("never", "neva", "neba")]
+        if not aux and pre_never and len(rest) > 1 and rest[1].type == TokenType.VERB:
+            v = rest[1].value.lower()
+            comps = self._comps(rest[2:], lang)
+            if en:
+                verb_s = _en_forms(v)[0] if person == "3s" else _en_base(v)
+                return " ".join(x for x in (subj_s, "never", verb_s, comps) if x), None, ""
+            return " ".join(x for x in (subj_s, "ne", _fr_conjugate(v, person), "jamais", comps) if x), None, ""
         # no aux
+        if first == "go" and len(verbs) == 1 and comps_toks and comps_toks[0].type in NOUN_LIKE:
+            ent2 = NOUNS.get(comps_toks[-1].value.lower())
+            if en:
+                return f"{subj_s} will go to the {comps}".strip() if False else f"{subj_s} {'goes' if person == '3s' else 'go'} to the {comps}".strip(), None, ""
+            g = ent2[2] if ent2 else "m"
+            name = re.sub(r"^(le |la |l'|un |une |du |de la |de l')", "", comps)
+            prep = "à l'" if name[:1] in "aeiouhéè" else ("au " if g == "m" else "à la ")
+            return f"{subj_s} {_fr_conjugate('go', person)} {prep}{name}".strip(), None, ""
         if first == "go":
             if len(verbs) > 1:
                 b = " ".join(_en_base(x) if en else (FR[x][0] if x in FR else x) for x in verbs[1:])
@@ -840,3 +895,25 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# ---------------------------------------------------------------------------
+# Built-in vocabulary snapshot + user dictionary hook (see userdict.py)
+# ---------------------------------------------------------------------------
+BUILTIN_WORDS = (set(NOUNS) | set(PROPER) | set(NUMBERS) | set(ADJ) | set(ADV) | set(PREP) | set(INTERJ) | set(CODE)
+                 | set(QWORDS) | set(FR) | set(PRON_EN)
+                 | {"dey", "di", "done", "don", "fit", "wan", "mos", "bin", "no", "make", "na", "am", "me", "small",
+                    "the", "a", "an", "this", "that", "these", "those", "dis", "dat", "my", "your", "our", "their", "his",
+                    "and", "but", "or"})
+USER_ADDED = {"NOUNS": set(), "PROPER": set(), "ADJ": set(), "ADV": set(), "INTERJ": set(), "FR": set(),
+              "EN_IRREG": set(), "EN_BASE": set(), "PAST_EN": set()}
+
+
+def reload_user_dictionary() -> int:
+    import userdict
+    return userdict.apply()
+
+
+import sys as _sys
+if "userdict" not in _sys.modules:   # userdict applies itself when imported first
+    import userdict  # noqa: F401  (its module-level apply() loads data/user_dictionary.json)

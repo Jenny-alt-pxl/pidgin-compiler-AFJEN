@@ -435,3 +435,13 @@ python main.py words                       # 260+ word dictionary
 - The Translate tab never rejects input: unknown words are kept and collected in `data/word_bank.json`;
   loose sentences are analysed clause by clause. The strict LL(1) accept/reject tests remain in the Test Suite tab.
 - `src/dictionary.py` builds the dictionary (264 words) and the persistent word bank.
+
+### Teaching AFJEN new words
+
+Add words on the **Dictionary** tab (or click a yellow "+ word" chip under a translation). They are saved in
+`data/user_dictionary.json` and are used immediately by the lexer, the parser and the translator.
+Export / import your words as CSV. Extra features: live translation while you type, translation history and a
+word-frequency chart (Insights tab), copy both languages, save translation to a file.
+Cameroon Pidgin markers supported: `dey/di`, `done/don`, `bin`, `go`, `fit`, `wan`, `mos`, `no`, `neva`, `wuna`.
+
+Unit tests for the new features: `python tests/test_afjen.py`.

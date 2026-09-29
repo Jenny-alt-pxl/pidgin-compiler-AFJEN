@@ -14,6 +14,7 @@ from datetime import datetime
 from typing import Dict, List, Tuple
 
 import translator as T
+import userdict
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 BANK_PATH = os.path.join(ROOT, "data", "word_bank.json")
@@ -23,6 +24,17 @@ PIDGIN_WORDS = [
     ("dey", "Pidgin aspect", "is/are (progressive)", "est en train de"),
     ("done", "Pidgin aspect", "has/have (perfect)", "a / ont (passé composé)"),
     ("don", "Pidgin aspect", "has/have (perfect)", "a / ont (passé composé)"),
+    ("di", "Pidgin aspect", "is/are (progressive, Anglophone)", "est en train de"),
+    ("bin", "Pidgin aspect", "did / was (past)", "passé composé"),
+    ("wan", "Pidgin modal", "want to", "vouloir"),
+    ("the", "Determiner", "the", "le / la / les"), ("a", "Determiner", "a", "un / une"),
+    ("an", "Determiner", "an", "un / une"), ("this", "Determiner", "this", "ce / cette"),
+    ("that", "Determiner", "that", "ce / cette"), ("dis", "Determiner", "this (Pidgin)", "ce / cette"),
+    ("dat", "Determiner", "that (Pidgin)", "ce / cette"), ("my", "Determiner", "my", "mon / ma"),
+    ("your", "Determiner", "your", "ton / ta / votre"), ("our", "Determiner", "our", "notre"),
+    ("their", "Determiner", "their", "leur"), ("his", "Determiner", "his", "son / sa"),
+    ("and", "Conjunction", "and", "et"), ("but", "Conjunction", "but", "mais"), ("or", "Conjunction", "or", "ou"),
+    ("mos", "Pidgin modal", "must", "devoir"),
     ("fit", "Pidgin aspect", "can / be able to", "pouvoir"),
     ("no", "Negation", "no / not", "ne ... pas"),
     ("make", "Subjunctive", "let / please / so that", "que / pour que"),
@@ -32,7 +44,7 @@ PIDGIN_WORDS = [
     ("small", "Particle", "a little", "un peu"),
 ]
 
-_CATEGORY_ORDER = ["Pidgin aspect", "Negation", "Subjunctive", "Particle", "Verb", "Noun", "Proper noun",
+_CATEGORY_ORDER = ["Pidgin aspect", "Pidgin modal", "Determiner", "Conjunction", "Negation", "Subjunctive", "Particle", "Verb", "Noun", "Proper noun",
                    "Number", "Adjective", "Adverb", "Preposition", "Pronoun", "Interjection", "Code-mixed",
                    "Question word"]
 
@@ -69,8 +81,17 @@ def build_dictionary() -> List[Tuple[str, str, str, str]]:
         add(w, "Question word", e[0], e[1])
     for w, (en, fr, _p) in T.PRON_EN.items():
         add(w, "Pronoun", en, fr)
-    return sorted(rows.values(), key=lambda r: (_CATEGORY_ORDER.index(r[1]) if r[1] in _CATEGORY_ORDER else 99,
+    for entry in userdict.load():
+        key = entry["word"].lower()
+        if key in rows:
+            rows[key] = (rows[key][0], "★ " + entry["type"], rows[key][2], rows[key][3])
+    return sorted(rows.values(), key=lambda r: (0 if r[1].startswith("★") else 1,
+                                                _CATEGORY_ORDER.index(r[1]) if r[1] in _CATEGORY_ORDER else 99,
                                                 r[0].lower()))
+
+
+def known_words():
+    return {row[0].lower() for row in build_dictionary()}
 
 
 DICTIONARY = build_dictionary()
@@ -102,11 +123,12 @@ class WordBank:
             pass
 
     def record(self, words: List[str]):
+        known = known_words()
         for w in words:
             key = w.lower()
             if not key or not any(ch.isalpha() for ch in key):
                 continue
-            entry = self.words.setdefault(key, {"count": 0, "known": key in KNOWN})
+            entry = self.words.setdefault(key, {"count": 0, "known": key in known})
             entry["count"] = int(entry["count"]) + 1
         self.save()
 
@@ -116,7 +138,11 @@ class WordBank:
 
     @property
     def unknown_words(self) -> List[str]:
-        return sorted(w for w, e in self.words.items() if not e["known"])
+        known = known_words()
+        return sorted(w for w in self.words if w not in known)
+
+    def top_words(self, n: int = 10) -> List[Tuple[str, int]]:
+        return sorted(((w, int(e["count"])) for w, e in self.words.items()), key=lambda x: (-x[1], x[0]))[:n]
 
 
 def main():

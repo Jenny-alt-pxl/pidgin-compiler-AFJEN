@@ -53,6 +53,10 @@ class Token:
         return f"Token({self.type.value}, '{self.value}', L{self.line}:C{self.column})"
 
 
+# words taught by the user (see userdict.py): word -> TokenType, applied to words the catch-all would call NOUN
+USER_TOKEN_TYPES = {}
+
+
 class LexicalAnalyzer:
     """Lexical analyzer for Yaoundé statements"""
     
@@ -70,7 +74,7 @@ class LexicalAnalyzer:
             (r"(?<![\wé-])(garrr|zéro-zéro|ekiee|hmmm|OK|Eh|ooo|wahala|abeg|ehh|haba|chai)(?![\wé-])", TokenType.INTERJECTION),
 
             # Pidgin aspect auxiliaries: dey (progressive), done/don (perfect), fit (can)
-            (r"\b(dey|done|don|fit)\b", TokenType.PIDGIN_VERB),
+            (r"\b(dey|di|done|don|fit|wan|mos|bin)\b", TokenType.PIDGIN_VERB),
 
             # Negation and subjunctive marker
             (r"\bno\b", TokenType.NEGATION),
@@ -90,18 +94,18 @@ class LexicalAnalyzer:
             (r"\b(at|for|in|on|before|after|since|from|with|to)\b", TokenType.PREPOSITION),
 
             # Determiners
-            (r"\b(the|a|an|this|that|these|those)\b", TokenType.ARTICLE),
+            (r"\b(the|a|an|this|that|these|those|dis|dat|my|your|our|their|his)\b", TokenType.ARTICLE),
 
             # Pronouns (it's = it + copula)
             (r"\bit's\b", TokenType.PRONOUN),
-            (r"\b(I|we|you|him|her|it|they)\b", TokenType.PRONOUN),
+            (r"\b(I|we|you|him|her|it|they|she|he|wuna|una|yu|mi|wi)\b", TokenType.PRONOUN),
 
             # Numbers (digits or number words)
             (r"\b\d+\b", TokenType.NUMBER),
             (r"\b(one|two|three|four|five|six|seven|eight|nine|ten|hundred|thousand)\b", TokenType.NUMBER),
 
             # Adverbs (before adjectives so "too" stays an adverb)
-            (r"\b(again|so|too|just|even|already|always|now|down(?!-)|pass|ahead|here|there|today|tomorrow|soon|late|early)\b", TokenType.ADVERB),
+            (r"\b(again|so|too|just|even|already|always|never|neva|neba|now|down(?!-)|pass|ahead|here|there|today|tomorrow|soon|late|early)\b", TokenType.ADVERB),
 
             # Adjectives
             (r"(?<![\wé-])(fresh|good|scarce|crowded|cher|down-down|much|careful|tired|slow|cheap|expensive|wet|hot|cold|heavy|dark|long|hungry|big|bad|new)(?![\wé-])", TokenType.ADJECTIVE),
@@ -110,7 +114,7 @@ class LexicalAnalyzer:
             (r"\b(Yaoundé|Carrefour|Mambanda|MTN|Mama|Brother|Prof|ICT)\b", TokenType.PROPER_NOUN),
 
             # Verbs
-            (r"\b(drop|tire|hala|try|cut|remain|fill|go|waka|take|load|start|finish|work|charge|reduce|browse|relax|say|come|use|give|wait|empty|fall|stuck|restart|become|be|sit|do|buy|see|know|reach|stop|pay|drive|park|arrive|move|sell|cook|eat|drink|call|send|ask|tell|carry|bring|leave|stay|open|close|sleep|cost|pick|stand|hold|climb|turn|run|walk|show|sabi|komot|tif|dance|talk|look|want|need|like|love|help|think)\b", TokenType.VERB),
+            (r"\b(drop|tire|hala|try|cut|remain|fill|go|waka|take|load|start|finish|work|charge|reduce|browse|relax|say|come|use|give|wait|empty|fall|stuck|restart|become|be|sit|do|buy|see|know|reach|stop|pay|drive|park|arrive|move|sell|cook|eat|drink|call|send|ask|tell|carry|bring|leave|stay|open|close|sleep|cost|pick|stand|hold|climb|turn|run|walk|show|sabi|komot|tif|dance|talk|look|want|need|like|love|help|think|tchop)\b", TokenType.VERB),
 
             # Nouns (catch-all for remaining words; accents, hyphens, apostrophes allowed inside)
             (r"[a-zà-ÿ]+(?:[-'][a-zà-ÿ]+)*", TokenType.NOUN),
@@ -166,6 +170,9 @@ class LexicalAnalyzer:
                     matched = True
                     break
             
+            if matched and token_type == TokenType.NOUN and tokens[-1].value.lower() in USER_TOKEN_TYPES:
+                tokens[-1].type = USER_TOKEN_TYPES[tokens[-1].value.lower()]
+
             if not matched:
                 # Unknown character, skip or handle as error
                 column += 1
