@@ -1,0 +1,709 @@
+{
+ "updated": "2026-09-29T12:06:20",
+ "words": {
+  "abeg": {
+   "count": 2,
+   "known": true
+  },
+  "after": {
+   "count": 1,
+   "known": true
+  },
+  "again": {
+   "count": 5,
+   "known": true
+  },
+  "ahead": {
+   "count": 1,
+   "known": true
+  },
+  "airtime": {
+   "count": 1,
+   "known": true
+  },
+  "always": {
+   "count": 1,
+   "known": true
+  },
+  "am": {
+   "count": 4,
+   "known": true
+  },
+  "another": {
+   "count": 1,
+   "known": true
+  },
+  "at": {
+   "count": 5,
+   "known": true
+  },
+  "bad": {
+   "count": 1,
+   "known": true
+  },
+  "balance": {
+   "count": 1,
+   "known": true
+  },
+  "be": {
+   "count": 1,
+   "known": true
+  },
+  "become": {
+   "count": 1,
+   "known": true
+  },
+  "beer": {
+   "count": 1,
+   "known": true
+  },
+  "before": {
+   "count": 1,
+   "known": true
+  },
+  "bendskin": {
+   "count": 2,
+   "known": true
+  },
+  "block": {
+   "count": 1,
+   "known": true
+  },
+  "brother": {
+   "count": 7,
+   "known": true
+  },
+  "browse": {
+   "count": 1,
+   "known": true
+  },
+  "c'est cher": {
+   "count": 1,
+   "known": true
+  },
+  "candle": {
+   "count": 1,
+   "known": true
+  },
+  "car": {
+   "count": 1,
+   "known": true
+  },
+  "careful": {
+   "count": 1,
+   "known": true
+  },
+  "carrefour": {
+   "count": 5,
+   "known": true
+  },
+  "charge": {
+   "count": 1,
+   "known": true
+  },
+  "checkpoint": {
+   "count": 1,
+   "known": true
+  },
+  "chop": {
+   "count": 1,
+   "known": true
+  },
+  "class": {
+   "count": 2,
+   "known": true
+  },
+  "come": {
+   "count": 4,
+   "known": true
+  },
+  "complete": {
+   "count": 1,
+   "known": true
+  },
+  "cost": {
+   "count": 1,
+   "known": true
+  },
+  "crowded": {
+   "count": 1,
+   "known": true
+  },
+  "cut": {
+   "count": 1,
+   "known": true
+  },
+  "dey": {
+   "count": 16,
+   "known": true
+  },
+  "do": {
+   "count": 1,
+   "known": true
+  },
+  "document": {
+   "count": 2,
+   "known": true
+  },
+  "don": {
+   "count": 13,
+   "known": true
+  },
+  "done": {
+   "count": 9,
+   "known": true
+  },
+  "down": {
+   "count": 1,
+   "known": true
+  },
+  "down-down": {
+   "count": 1,
+   "known": true
+  },
+  "driver": {
+   "count": 4,
+   "known": true
+  },
+  "drop": {
+   "count": 5,
+   "known": true
+  },
+  "eh": {
+   "count": 1,
+   "known": true
+  },
+  "ekiee": {
+   "count": 1,
+   "known": true
+  },
+  "empty": {
+   "count": 1,
+   "known": true
+  },
+  "enter": {
+   "count": 2,
+   "known": true
+  },
+  "exam": {
+   "count": 1,
+   "known": true
+  },
+  "fall": {
+   "count": 2,
+   "known": true
+  },
+  "fill": {
+   "count": 2,
+   "known": true
+  },
+  "finish": {
+   "count": 2,
+   "known": true
+  },
+  "fish": {
+   "count": 2,
+   "known": true
+  },
+  "fit": {
+   "count": 2,
+   "known": true
+  },
+  "five": {
+   "count": 2,
+   "known": true
+  },
+  "for": {
+   "count": 16,
+   "known": true
+  },
+  "francs": {
+   "count": 2,
+   "known": true
+  },
+  "fresh": {
+   "count": 2,
+   "known": true
+  },
+  "front": {
+   "count": 1,
+   "known": true
+  },
+  "fry": {
+   "count": 1,
+   "known": true
+  },
+  "fuel": {
+   "count": 2,
+   "known": true
+  },
+  "full": {
+   "count": 1,
+   "known": true
+  },
+  "garrr": {
+   "count": 1,
+   "known": true
+  },
+  "generator": {
+   "count": 1,
+   "known": true
+  },
+  "give": {
+   "count": 2,
+   "known": true
+  },
+  "go": {
+   "count": 10,
+   "known": true
+  },
+  "good": {
+   "count": 1,
+   "known": true
+  },
+  "gutter": {
+   "count": 1,
+   "known": true
+  },
+  "hala": {
+   "count": 1,
+   "known": true
+  },
+  "here": {
+   "count": 1,
+   "known": true
+  },
+  "hmmm": {
+   "count": 1,
+   "known": true
+  },
+  "how": {
+   "count": 2,
+   "known": true
+  },
+  "hundred": {
+   "count": 2,
+   "known": true
+  },
+  "i": {
+   "count": 11,
+   "known": true
+  },
+  "increase": {
+   "count": 1,
+   "known": true
+  },
+  "internet": {
+   "count": 1,
+   "known": true
+  },
+  "it's": {
+   "count": 1,
+   "known": true
+  },
+  "je wanda": {
+   "count": 1,
+   "known": true
+  },
+  "junction": {
+   "count": 4,
+   "known": true
+  },
+  "kilometers": {
+   "count": 1,
+   "known": true
+  },
+  "lecture": {
+   "count": 1,
+   "known": true
+  },
+  "light": {
+   "count": 2,
+   "known": true
+  },
+  "load": {
+   "count": 1,
+   "known": true
+  },
+  "madam": {
+   "count": 1,
+   "known": true
+  },
+  "make": {
+   "count": 6,
+   "known": true
+  },
+  "mama": {
+   "count": 1,
+   "known": true
+  },
+  "mambanda": {
+   "count": 1,
+   "known": true
+  },
+  "man": {
+   "count": 1,
+   "known": true
+  },
+  "me": {
+   "count": 14,
+   "known": true
+  },
+  "message": {
+   "count": 1,
+   "known": true
+  },
+  "modem": {
+   "count": 1,
+   "known": true
+  },
+  "mon dieu": {
+   "count": 1,
+   "known": true
+  },
+  "money": {
+   "count": 1,
+   "known": true
+  },
+  "more": {
+   "count": 2,
+   "known": true
+  },
+  "morning": {
+   "count": 2,
+   "known": true
+  },
+  "mtn": {
+   "count": 1,
+   "known": true
+  },
+  "much": {
+   "count": 4,
+   "known": true
+  },
+  "mud": {
+   "count": 1,
+   "known": true
+  },
+  "my": {
+   "count": 2,
+   "known": true
+  },
+  "na": {
+   "count": 10,
+   "known": true
+  },
+  "network": {
+   "count": 2,
+   "known": true
+  },
+  "no": {
+   "count": 3,
+   "known": true
+  },
+  "nothing": {
+   "count": 1,
+   "known": true
+  },
+  "now": {
+   "count": 2,
+   "known": true
+  },
+  "officer": {
+   "count": 1,
+   "known": true
+  },
+  "ok": {
+   "count": 1,
+   "known": true
+  },
+  "one": {
+   "count": 2,
+   "known": true
+  },
+  "ooo": {
+   "count": 1,
+   "known": true
+  },
+  "paper": {
+   "count": 1,
+   "known": true
+  },
+  "pas": {
+   "count": 1,
+   "known": true
+  },
+  "pass": {
+   "count": 1,
+   "known": true
+  },
+  "petrol": {
+   "count": 1,
+   "known": true
+  },
+  "phone": {
+   "count": 1,
+   "known": true
+  },
+  "plenty": {
+   "count": 1,
+   "known": true
+  },
+  "police": {
+   "count": 1,
+   "known": true
+  },
+  "prepare": {
+   "count": 1,
+   "known": true
+  },
+  "price": {
+   "count": 1,
+   "known": true
+  },
+  "prof": {
+   "count": 2,
+   "known": true
+  },
+  "pump": {
+   "count": 1,
+   "known": true
+  },
+  "quarter": {
+   "count": 1,
+   "known": true
+  },
+  "quartier": {
+   "count": 1,
+   "known": true
+  },
+  "queue": {
+   "count": 1,
+   "known": true
+  },
+  "quick": {
+   "count": 2,
+   "known": true
+  },
+  "rain": {
+   "count": 2,
+   "known": true
+  },
+  "reach": {
+   "count": 4,
+   "known": true
+  },
+  "reduce": {
+   "count": 2,
+   "known": true
+  },
+  "relax": {
+   "count": 1,
+   "known": true
+  },
+  "remain": {
+   "count": 1,
+   "known": true
+  },
+  "restart": {
+   "count": 1,
+   "known": true
+  },
+  "road": {
+   "count": 1,
+   "known": true
+  },
+  "roadblock": {
+   "count": 1,
+   "known": true
+  },
+  "say": {
+   "count": 2,
+   "known": true
+  },
+  "scarce": {
+   "count": 1,
+   "known": true
+  },
+  "semester": {
+   "count": 1,
+   "known": true
+  },
+  "send": {
+   "count": 1,
+   "known": true
+  },
+  "shoe": {
+   "count": 1,
+   "known": true
+  },
+  "shop": {
+   "count": 1,
+   "known": true
+  },
+  "since": {
+   "count": 2,
+   "known": true
+  },
+  "sister": {
+   "count": 1,
+   "known": true
+  },
+  "sit": {
+   "count": 1,
+   "known": true
+  },
+  "small": {
+   "count": 11,
+   "known": true
+  },
+  "so": {
+   "count": 1,
+   "known": true
+  },
+  "start": {
+   "count": 1,
+   "known": true
+  },
+  "station": {
+   "count": 1,
+   "known": true
+  },
+  "stop": {
+   "count": 4,
+   "known": true
+  },
+  "stuck": {
+   "count": 1,
+   "known": true
+  },
+  "suya": {
+   "count": 1,
+   "known": true
+  },
+  "sweet": {
+   "count": 1,
+   "known": true
+  },
+  "take": {
+   "count": 1,
+   "known": true
+  },
+  "tank": {
+   "count": 1,
+   "known": true
+  },
+  "taxi": {
+   "count": 2,
+   "known": true
+  },
+  "the": {
+   "count": 18,
+   "known": true
+  },
+  "they": {
+   "count": 1,
+   "known": true
+  },
+  "this": {
+   "count": 4,
+   "known": true
+  },
+  "thousand": {
+   "count": 2,
+   "known": true
+  },
+  "time": {
+   "count": 1,
+   "known": true
+  },
+  "tire": {
+   "count": 6,
+   "known": true
+  },
+  "tomatoes": {
+   "count": 1,
+   "known": true
+  },
+  "tomorrow": {
+   "count": 1,
+   "known": true
+  },
+  "too": {
+   "count": 3,
+   "known": true
+  },
+  "traffic": {
+   "count": 5,
+   "known": true
+  },
+  "transport": {
+   "count": 2,
+   "known": true
+  },
+  "try": {
+   "count": 1,
+   "known": true
+  },
+  "two": {
+   "count": 3,
+   "known": true
+  },
+  "use": {
+   "count": 2,
+   "known": true
+  },
+  "wahala": {
+   "count": 1,
+   "known": true
+  },
+  "wait": {
+   "count": 4,
+   "known": true
+  },
+  "waka": {
+   "count": 1,
+   "known": true
+  },
+  "water": {
+   "count": 1,
+   "known": true
+  },
+  "we": {
+   "count": 9,
+   "known": true
+  },
+  "well": {
+   "count": 2,
+   "known": true
+  },
+  "wet": {
+   "count": 1,
+   "known": true
+  },
+  "why": {
+   "count": 1,
+   "known": true
+  },
+  "work": {
+   "count": 1,
+   "known": true
+  },
+  "yaoundé": {
+   "count": 7,
+   "known": true
+  },
+  "you": {
+   "count": 2,
+   "known": true
+  },
+  "your": {
+   "count": 1,
+   "known": true
+  },
+  "zéro-zéro": {
+   "count": 1,
+   "known": true
+  }
+ }
+}

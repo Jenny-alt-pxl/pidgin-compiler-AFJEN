@@ -21,60 +21,20 @@ from lexical_analyzer import LexicalAnalyzer, Token, TokenType
 # ---------------------------------------------------------------------------
 # 1. Verified translations (collected corpus)
 # ---------------------------------------------------------------------------
-VERIFIED: Dict[str, Dict[str, str]] = {
-    "Brother, drop me na at Carrefour Yaoundé, the traffic done tire me small": {
-        "en": "Brother, drop me off at Carrefour Yaoundé, the traffic has worn me out a bit.",
-        "fr": "Frère, dépose-moi au carrefour de Yaoundé, les embouteillages m'ont un peu épuisé."},
-    "Hala me small money, na five hundred francs remain for transport": {
-        "en": "Give me a little money, I only have five hundred francs left for transport.",
-        "fr": "Donne-moi un peu d'argent, il ne me reste que cinq cents francs pour le transport."},
-    "Taxi! Yaoundé, Yaoundé! Fill am make we go, pas time dey waka!": {
-        "en": "Taxi! Yaoundé, Yaoundé! Fill it up so we can go, time is running out!",
-        "fr": "Taxi ! Yaoundé, Yaoundé ! Remplis-le pour qu'on puisse partir, le temps file !"},
-    "Eh mon Dieu, internet dey do again? I don try restart modem, garrr nothing!": {
-        "en": "Oh my God, is the internet acting up again? I have tried restarting the modem, nothing, argh!",
-        "fr": "Oh mon Dieu, Internet fait encore des siennes ? J'ai essayé de redémarrer le modem, rien, argh !"},
-    "The light done cut again, zéro-zéro, na generator we dey use since morning": {
-        "en": "The power has gone out again, total blackout, we have been using a generator since morning.",
-        "fr": "Le courant est encore coupé, coupure totale, on utilise un groupe électrogène depuis ce matin."},
-    "Je wanda why MTN network no fit work for this quarter, it's always down-down": {
-        "en": "I wonder why the MTN network can't work in this neighbourhood, it's always down.",
-        "fr": "Je me demande pourquoi le réseau MTN ne marche pas dans ce quartier, il est toujours en panne."},
-    "Mama, make you reduce am na small, two thousand francs too much for tomatoes, ekiee": {
-        "en": "Mama, please reduce it a little, two thousand francs is too much for tomatoes, oh dear!",
-        "fr": "Maman, baisse un peu le prix, deux mille francs c'est trop pour des tomates, oh là là !"},
-    "Chop na fresh, fresh! Come take am now, I give you good price, no wahala": {
-        "en": "The food is fresh, really fresh! Come and take it now, I'll give you a good price, no trouble.",
-        "fr": "C'est frais, tout frais ! Viens le prendre maintenant, je te fais un bon prix, pas de souci."},
-    "Brother, the bendskin dey charge too much, five hundred for two kilometers, c'est cher ooo": {
-        "en": "Brother, the bendskin is charging too much, five hundred for two kilometres, that's expensive!",
-        "fr": "Frère, le bendskin fait payer trop cher, cinq cents pour deux kilomètres, c'est cher !"},
-    "They say checkpoint ahead, document dey for front, make we be careful pass": {
-        "en": "They say there is a checkpoint ahead, the documents are at the front, let's be extra careful.",
-        "fr": "On dit qu'il y a un contrôle devant, les papiers sont devant, soyons encore plus prudents."},
-    "Rain don fall so, the road done become mud, car stuck for quartier Mambanda": {
-        "en": "It has rained so much, the road has turned to mud, a car is stuck in the Mambanda neighbourhood.",
-        "fr": "Il a tellement plu, la route est devenue de la boue, une voiture est coincée au quartier Mambanda."},
-    "Petrol dey scarce, pump don empty again, we go wait small before go fill tank": {
-        "en": "Petrol is scarce, the pump has run empty again, we will wait a little before going to fill the tank.",
-        "fr": "L'essence est rare, la pompe est encore vide, on va attendre un peu avant d'aller faire le plein."},
-    "How much for this phone airtime? OK, load me two thousand balance make I browse": {
-        "en": "How much for this phone airtime? OK, load two thousand credit for me so I can browse.",
-        "fr": "C'est combien ce crédit téléphonique ? OK, mets-moi deux mille de crédit pour que je puisse naviguer."},
-    "Lecture done start, prof say come sit down, but the class dey too crowded, hmmm": {
-        "en": "The lecture has started, the professor said to come and sit down, but the class is too crowded, hmm.",
-        "fr": "Le cours a commencé, le prof a dit de venir s'asseoir, mais la classe est trop pleine, hmm."},
-    "After exam finish, we go for beer na, relax small, this semester done tire me": {
-        "en": "After the exam is over, we will go for a beer, relax a little, this semester has worn me out.",
-        "fr": "Après l'examen, on ira prendre une bière, se détendre un peu, ce semestre m'a épuisé."},
-}
+# Filled by statements.py from corpus.py (30 statements) plus the statements you add in the app
+VERIFIED: Dict[str, Dict[str, str]] = {}
 
 
 def _norm(text: str) -> str:
     return re.sub(r"\s+", " ", text.strip().strip('"')).lower()
 
 
-_VERIFIED_INDEX = {_norm(k): v for k, v in VERIFIED.items()}
+_VERIFIED_INDEX: Dict[str, Dict[str, str]] = {}
+
+
+def rebuild_verified_index() -> None:
+    _VERIFIED_INDEX.clear()
+    _VERIFIED_INDEX.update({_norm(k): v for k, v in VERIFIED.items()})
 
 # ---------------------------------------------------------------------------
 # 2. Lexicon
@@ -99,6 +59,15 @@ NOUNS = {
     "transport": ("transport", "transport", "m", False), "traffic": ("traffic", "embouteillages", "m", True),
     "bendskin": ("bendskin", "bendskin", "m", False), "morning": ("morning", "matin", "m", False),
     "kilometers": ("kilometres", "kilomètres", "m", True), "kontri": ("country", "pays", "m", False),
+    "junction": ("junction", "carrefour", "m", False), "madam": ("madam", "madame", "f", False),
+    "paper": ("paper", "papier", "m", False), "pas": ("pas", "pas", "m", False), "message": ("message", "message", "m", False),
+    "candle": ("candle", "bougie", "f", False), "shoe": ("shoe", "chaussure", "f", False),
+    "gutter": ("gutter", "caniveau", "m", False), "station": ("station", "station", "f", False),
+    "suya": ("suya", "suya", "m", False), "roadblock": ("roadblock", "barrage", "m", False),
+    "officer": ("officer", "agent", "m", False), "shop": ("shop", "boutique", "f", False),
+    "notes": ("notes", "notes", "f", True), "assignment": ("assignment", "devoir", "m", False),
+    "egg": ("egg", "œuf", "m", False), "litre": ("litre", "litre", "m", False), "one": ("one", "un", "m", False),
+    "another": ("another", "autre", "m", False),
     "njangi": ("savings group", "tontine", "f", False), "moto": ("motorbike", "moto", "f", False), "airtime": ("airtime", "crédit", "m", False),
     "phone": ("phone", "téléphone", "m", False), "balance": ("credit", "crédit", "m", False),
     "ticket": ("ticket", "billet", "m", False), "driver": ("driver", "chauffeur", "m", False),
@@ -127,14 +96,16 @@ NUMBERS = {"one": ("one", "un"), "two": ("two", "deux"), "three": ("three", "tro
            "five": ("five", "cinq"), "six": ("six", "six"), "seven": ("seven", "sept"), "eight": ("eight", "huit"),
            "nine": ("nine", "neuf"), "ten": ("ten", "dix"), "hundred": ("hundred", "cents"),
            "thousand": ("thousand", "mille")}
-ADJ = {"fresh": ("fresh", "frais"), "good": ("good", "bon"), "scarce": ("scarce", "rare"),
+ADJ = {"full": ("full", "plein"), "complete": ("complete", "complet"), "hard": ("hard", "difficile"),
+       "sweet": ("delicious", "délicieux"), "fresh": ("fresh", "frais"), "good": ("good", "bon"), "scarce": ("scarce", "rare"),
        "crowded": ("crowded", "plein"), "careful": ("careful", "prudent"), "much": ("much", "trop"),
        "tired": ("tired", "fatigué"), "slow": ("slow", "lent"), "cheap": ("cheap", "bon marché"),
        "expensive": ("expensive", "cher"), "wet": ("wet", "mouillé"), "hot": ("hot", "chaud"),
        "cold": ("cold", "froid"), "heavy": ("heavy", "lourd"), "dark": ("dark", "sombre"), "long": ("long", "long"),
        "hungry": ("hungry", "affamé"), "big": ("big", "grand"), "bad": ("bad", "mauvais"), "new": ("new", "nouveau"),
        "cher": ("expensive", "cher"), "down-down": ("down", "en panne")}
-ADV = {"never": ("never", "jamais"), "neva": ("never", "jamais"), "neba": ("never", "jamais"), "again": ("again", "encore"), "so": ("so much", "tellement"), "too": ("too", "trop"),
+ADV = {"plenty": ("a lot", "beaucoup"), "more": ("more", "plus"), "less": ("less", "moins"), "well": ("well", "bien"),
+       "quick": ("quickly", "vite"), "never": ("never", "jamais"), "neva": ("never", "jamais"), "neba": ("never", "jamais"), "again": ("again", "encore"), "so": ("so much", "tellement"), "too": ("too", "trop"),
        "just": ("just", "juste"), "even": ("even", "même"), "already": ("already", "déjà"),
        "always": ("always", "toujours"), "now": ("now", "maintenant"), "down": ("down", "en bas"),
        "pass": ("more", "plus"), "ahead": ("ahead", "devant"), "here": ("here", "ici"), "there": ("there", "là"),
@@ -165,7 +136,7 @@ EN_IRREG = {  # base: (third, pp, ing)
     "sleep": ("sleeps", "slept", "sleeping"), "pay": ("pays", "paid", "paying"), "run": ("runs", "run", "running"),
     "stop": ("stops", "stopped", "stopping"), "hold": ("holds", "held", "holding"), "stand": ("stands", "stood", "standing"),
     "drive": ("drives", "driven", "driving"), "park": ("parks", "parked", "parking"), "hala": ("gives", "given", "giving"),
-    "stuck": ("is stuck", "been stuck", "being stuck"), "tchop": ("eats", "eaten", "eating"), "waka": ("walks", "walked", "walking"),
+    "stuck": ("is stuck", "been stuck", "being stuck"), "read": ("reads", "read", "reading"), "fry": ("fries", "fried", "frying"), "tchop": ("eats", "eaten", "eating"), "waka": ("walks", "walked", "walking"),
     "fill": ("fills", "filled", "filling"), "load": ("loads", "loaded", "loading"),
     "start": ("starts", "started", "starting"), "reach": ("reaches", "reached", "reaching"),
 }
@@ -211,7 +182,10 @@ FR = {
     "look": ("regarder", "regardé", "avoir", "regarde"), "want": ("vouloir", "voulu", "avoir", "veuille"),
     "need": ("avoir besoin de", "eu besoin de", "avoir", "aie besoin de"), "like": ("aimer", "aimé", "avoir", "aime"),
     "love": ("aimer", "aimé", "avoir", "aime"), "help": ("aider", "aidé", "avoir", "aide"),
-    "think": ("penser", "pensé", "avoir", "pense"), "tchop": ("manger", "mangé", "avoir", "mange"),
+    "think": ("penser", "pensé", "avoir", "pense"), "queue": ("faire la queue", "fait la queue", "avoir", "fais la queue"),
+    "increase": ("augmenter", "augmenté", "avoir", "augmente"), "enter": ("entrer", "entré", "être", "entre"),
+    "fry": ("faire frire", "fait frire", "avoir", "fais frire"), "prepare": ("préparer", "préparé", "avoir", "prépare"),
+    "block": ("boucher", "bouché", "avoir", "bouche"), "read": ("lire", "lu", "avoir", "lis"), "tchop": ("manger", "mangé", "avoir", "mange"),
 }
 # 3rd-person singular / plural present for French (regular -er/-re/-ir handled by rule, exceptions here)
 FR_PRES = {
@@ -349,6 +323,7 @@ class Translator:
                 out += " "
         out = out.strip()
         out = re.sub(r"\s+([,.])", r"\1", out)
+        out = re.sub(r"\b(well|quickly|vite|bien) \1\b", r"\1", out)
         out = re.sub(r"\b(worn|wear|wears|wearing|fill|fills|filled) (out|up) (me|us|it|you|them|him|her)\b", r"\1 \3 \2", out)
         if lang == "fr":
             out = re.sub(r"\btrop trop\b", "trop", out)
@@ -432,7 +407,7 @@ class Translator:
                 if entry and head in ("light", "traffic", "internet"):
                     art = "the" if art in ("the", None) else art
                 phrase = f"{art} {phrase}"
-            elif mode != "frag" and entry and not entry[3] and body and body[0].type == TokenType.NOUN and head in ("light", "network", "road", "class", "pump", "taxi", "car", "lecture", "bendskin", "prof") and len(body) == 1:
+            elif mode != "frag" and entry and not entry[3] and body and body[0].type == TokenType.NOUN and head in ("light", "network", "road", "class", "pump", "taxi", "car", "lecture", "bendskin", "prof", "police") and len(body) == 1:
                 phrase = f"the {phrase}"
             return phrase
         # French
@@ -780,6 +755,9 @@ class Translator:
             return (f"{subj_s} {a} en train {de}{inf} {comps}".strip(), a, "")
         if aux in ("done", "don"):
             if not verbs:
+                if comps_toks and comps_toks[0].type in (TokenType.ADJECTIVE, TokenType.ADVERB):
+                    a = _be(person, lang)
+                    return fmt(a, "", a)
                 return fmt("is" if en else "est", "over" if en else "terminé", None)
             v = verbs[0]
             if en:
@@ -915,5 +893,7 @@ def reload_user_dictionary() -> int:
 
 
 import sys as _sys
+if "statements" not in _sys.modules:   # statements applies itself when imported first
+    import statements  # noqa: F401
 if "userdict" not in _sys.modules:   # userdict applies itself when imported first
     import userdict  # noqa: F401  (its module-level apply() loads data/user_dictionary.json)

@@ -10,6 +10,7 @@ CS4110 - Compiler Construction
 
 import json
 import os
+import unicodedata
 from datetime import datetime
 from typing import Dict, List, Tuple
 
@@ -49,6 +50,18 @@ _CATEGORY_ORDER = ["Pidgin aspect", "Pidgin modal", "Determiner", "Conjunction",
                    "Question word"]
 
 
+def sort_key(word: str) -> str:
+    """Alphabetical order that ignores case and accents (é sorts with e)."""
+    plain = unicodedata.normalize("NFD", word.lower())
+    return "".join(ch for ch in plain if unicodedata.category(ch) != "Mn")
+
+
+def letters(entries=None) -> List[str]:
+    """First letters that have at least one dictionary entry, A-Z."""
+    entries = entries if entries is not None else build_dictionary()
+    return sorted({sort_key(r[0])[:1].upper() for r in entries if sort_key(r[0])[:1].isalpha()})
+
+
 def build_dictionary() -> List[Tuple[str, str, str, str]]:
     """Return sorted (word, category, english, french) rows."""
     rows: Dict[str, Tuple[str, str, str, str]] = {}
@@ -85,9 +98,7 @@ def build_dictionary() -> List[Tuple[str, str, str, str]]:
         key = entry["word"].lower()
         if key in rows:
             rows[key] = (rows[key][0], "★ " + entry["type"], rows[key][2], rows[key][3])
-    return sorted(rows.values(), key=lambda r: (0 if r[1].startswith("★") else 1,
-                                                _CATEGORY_ORDER.index(r[1]) if r[1] in _CATEGORY_ORDER else 99,
-                                                r[0].lower()))
+    return sorted(rows.values(), key=lambda r: sort_key(r[0]))
 
 
 def known_words():
@@ -112,6 +123,18 @@ class WordBank:
                 self.words = json.load(f).get("words", {})
         except (OSError, ValueError):
             self.words = {}
+        if not self.words:
+            self.seed_from_corpus()
+
+    def seed_from_corpus(self):
+        """Start the word bank with every word of the 30 corpus statements (with counts)."""
+        from lexical_analyzer import LexicalAnalyzer, TokenType
+        import corpus
+        lexer = LexicalAnalyzer()
+        words = [t.value for c in corpus.CORPUS for t in lexer.tokenize(str(c["text"]))
+                 if t.type not in (TokenType.EOF, TokenType.PUNCTUATION, TokenType.CONNECTOR)]
+        self.words = {}
+        self.record(words)
 
     def save(self):
         try:

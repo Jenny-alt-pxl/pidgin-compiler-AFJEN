@@ -1,41 +1,69 @@
 ================================================================================
-COLLECTED STATEMENTS FROM YAOUNDÉ
-Lexical and Syntactic Analysis of Informal Urban Communication
+COLLECTED STATEMENTS FROM YAOUNDÉ (AFJEN Compiler)
+Statements 1-15 were collected in Yaoundé; 16-30 are further typical examples (replace with your own).
 ================================================================================
 
-TOPIC: Taxi & Commuting Issues
+TOPIC: Taxi & Commuting
 ================================================================================
-1. "Brother, drop me na at Carrefour Yaoundé, the traffic done tire me small"
-2. "Hala me small money, na five hundred francs remain for transport"
-3. "Taxi! Yaoundé, Yaoundé! Fill am make we go, pas time dey waka!"
+1. "Brother, drop me na at Carrefour Yaoundé, the traffic done tire me small"   [collected]
+2. "Hala me small money, na five hundred francs remain for transport"   [collected]
+3. "Taxi! Yaoundé, Yaoundé! Fill am make we go, pas time dey waka!"   [collected]
+16. "Driver, stop for junction, I don reach"   [example]
+17. "The taxi dey full, we go wait for another one"   [example]
 
-TOPIC: Internet & Electricity
+TOPIC: Poor Internet
 ================================================================================
-4. "Eh mon Dieu, internet dey do again? I don try restart modem, garrr nothing!"
-5. "The light done cut again, zéro-zéro, na generator we dey use since morning"
-6. "Je wanda why MTN network no fit work for this quarter, it's always down-down"
+4. "Eh mon Dieu, internet dey do again? I don try restart modem, garrr nothing!"   [collected]
+6. "Je wanda why MTN network no fit work for this quarter, it's always down-down"   [collected]
+19. "Network dey bad again, I no fit send the message"   [example]
 
-TOPIC: Market Bargaining & Roadside Business
+TOPIC: Electricity
 ================================================================================
-7. "Mama, make you reduce am na small, two thousand francs too much for tomatoes, ekiee"
-8. "Chop na fresh, fresh! Come take am now, I give you good price, no wahala"
-9. "Brother, the bendskin dey charge too much, five hundred for two kilometers, c'est cher ooo"
+5. "The light done cut again, zéro-zéro, na generator we dey use since morning"   [collected]
+20. "Light don go since morning, we dey use candle"   [example]
 
-TOPIC: Security & Rainy Season
+TOPIC: Market Bargaining
 ================================================================================
-10. "They say checkpoint ahead, document dey for front, make we be careful pass"
-11. "Rain don fall so, the road done become mud, car stuck for quartier Mambanda"
+7. "Mama, make you reduce am na small, two thousand francs too much for tomatoes, ekiee"   [collected]
+8. "Chop na fresh, fresh! Come take am now, I give you good price, no wahala"   [collected]
+21. "Sister, how much for this fish? Abeg reduce am small"   [example]
 
-TOPIC: Fuel Scarcity & Everyday Transactions
+TOPIC: Rainy Season
 ================================================================================
-12. "Petrol dey scarce, pump don empty again, we go wait small before go fill tank"
-13. "How much for this phone airtime? OK, load me two thousand balance make I browse"
+11. "Rain don fall so, the road done become mud, car stuck for quartier Mambanda"   [collected]
+22. "Rain dey fall plenty, my shoe don wet"   [example]
+23. "The gutter don block, water dey enter the shop"   [example]
 
-TOPIC: University & General Slang
+TOPIC: Fuel Scarcity
 ================================================================================
-14. "Lecture done start, prof say come sit down, but the class dey too crowded, hmmm"
-15. "After exam finish, we go for beer na, relax small, this semester done tire me"
+12. "Petrol dey scarce, pump don empty again, we go wait small before go fill tank"   [collected]
+24. "Fuel don finish for the station, we go queue tomorrow"   [example]
+25. "Fuel don increase again, transport go cost more"   [example]
 
+TOPIC: Roadside Business
 ================================================================================
-END OF COLLECTED STATEMENTS
+26. "Madam, fry the fish well well, I dey wait"   [example]
+27. "Brother, the suya dey sweet, give me one more"   [example]
+
+TOPIC: Bendskin
 ================================================================================
+9. "Brother, the bendskin dey charge too much, five hundred for two kilometers, c'est cher ooo"   [collected]
+18. "Bendskin man, wait here small, I go come now"   [example]
+
+TOPIC: Security Checkpoints
+================================================================================
+10. "They say checkpoint ahead, document dey for front, make we be careful pass"   [collected]
+28. "Officer, my paper dey complete, abeg make I go"   [example]
+29. "Police dey for the roadblock, prepare your document"   [example]
+
+TOPIC: ICT University
+================================================================================
+14. "Lecture done start, prof say come sit down, but the class dey too crowded, hmmm"   [collected]
+15. "After exam finish, we go for beer na, relax small, this semester done tire me"   [collected]
+30. "Prof don come, make we enter the class quick quick"   [example]
+
+TOPIC: Everyday Transactions
+================================================================================
+13. "How much for this phone airtime? OK, load me two thousand balance make I browse"   [collected]
+
+END OF STATEMENTS

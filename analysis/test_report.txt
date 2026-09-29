@@ -253,3 +253,220 @@ Token Breakdown:
 Parse Result: ACCEPTED
 --------------------------------------------------------------------------------
 
+Statement STMT_016
+Text: Driver, stop for junction, I don reach
+Tokens: 9
+Token Breakdown:
+  CONNECTOR: 2
+  NOUN: 2
+  PIDGIN_VERB: 1
+  PREPOSITION: 1
+  PRONOUN: 1
+  VERB: 2
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_017
+Text: The taxi dey full, we go wait for another one
+Tokens: 11
+Token Breakdown:
+  ADJECTIVE: 1
+  ARTICLE: 1
+  CONNECTOR: 1
+  NOUN: 2
+  NUMBER: 1
+  PIDGIN_VERB: 1
+  PREPOSITION: 1
+  PRONOUN: 1
+  VERB: 2
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_018
+Text: Bendskin man, wait here small, I go come now
+Tokens: 11
+Token Breakdown:
+  ADVERB: 2
+  CONNECTOR: 2
+  NOUN: 2
+  PIDGIN_MARKER: 1
+  PRONOUN: 1
+  VERB: 3
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_019
+Text: Network dey bad again, I no fit send the message
+Tokens: 11
+Token Breakdown:
+  ADJECTIVE: 1
+  ADVERB: 1
+  ARTICLE: 1
+  CONNECTOR: 1
+  NEGATION: 1
+  NOUN: 2
+  PIDGIN_VERB: 2
+  PRONOUN: 1
+  VERB: 1
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_020
+Text: Light don go since morning, we dey use candle
+Tokens: 10
+Token Breakdown:
+  CONNECTOR: 1
+  NOUN: 3
+  PIDGIN_VERB: 2
+  PREPOSITION: 1
+  PRONOUN: 1
+  VERB: 2
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_021
+Text: Sister, how much for this fish? Abeg reduce am small
+Tokens: 12
+Token Breakdown:
+  ADJECTIVE: 1
+  ARTICLE: 1
+  CONNECTOR: 1
+  INTERJECTION: 1
+  NOUN: 2
+  PIDGIN_MARKER: 2
+  PREPOSITION: 1
+  PUNCTUATION: 1
+  QUESTION_WORD: 1
+  VERB: 1
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_022
+Text: Rain dey fall plenty, my shoe don wet
+Tokens: 9
+Token Breakdown:
+  ADJECTIVE: 1
+  ADVERB: 1
+  ARTICLE: 1
+  CONNECTOR: 1
+  NOUN: 2
+  PIDGIN_VERB: 2
+  VERB: 1
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_023
+Text: The gutter don block, water dey enter the shop
+Tokens: 10
+Token Breakdown:
+  ARTICLE: 2
+  CONNECTOR: 1
+  NOUN: 3
+  PIDGIN_VERB: 2
+  VERB: 2
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_024
+Text: Fuel don finish for the station, we go queue tomorrow
+Tokens: 11
+Token Breakdown:
+  ADVERB: 1
+  ARTICLE: 1
+  CONNECTOR: 1
+  NOUN: 2
+  PIDGIN_VERB: 1
+  PREPOSITION: 1
+  PRONOUN: 1
+  VERB: 3
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_025
+Text: Fuel don increase again, transport go cost more
+Tokens: 9
+Token Breakdown:
+  ADVERB: 2
+  CONNECTOR: 1
+  NOUN: 2
+  PIDGIN_VERB: 1
+  VERB: 3
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_026
+Text: Madam, fry the fish well well, I dey wait
+Tokens: 11
+Token Breakdown:
+  ADVERB: 2
+  ARTICLE: 1
+  CONNECTOR: 2
+  NOUN: 2
+  PIDGIN_VERB: 1
+  PRONOUN: 1
+  VERB: 2
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_027
+Text: Brother, the suya dey sweet, give me one more
+Tokens: 11
+Token Breakdown:
+  ADJECTIVE: 1
+  ADVERB: 1
+  ARTICLE: 1
+  CONNECTOR: 2
+  NOUN: 1
+  NUMBER: 1
+  PIDGIN_MARKER: 1
+  PIDGIN_VERB: 1
+  PROPER_NOUN: 1
+  VERB: 1
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_028
+Text: Officer, my paper dey complete, abeg make I go
+Tokens: 11
+Token Breakdown:
+  ADJECTIVE: 1
+  ARTICLE: 1
+  CONNECTOR: 2
+  INTERJECTION: 1
+  NOUN: 2
+  PIDGIN_VERB: 1
+  PRONOUN: 1
+  SUBJUNCTIVE: 1
+  VERB: 1
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_029
+Text: Police dey for the roadblock, prepare your document
+Tokens: 9
+Token Breakdown:
+  ARTICLE: 2
+  CONNECTOR: 1
+  NOUN: 3
+  PIDGIN_VERB: 1
+  PREPOSITION: 1
+  VERB: 1
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+
+Statement STMT_030
+Text: Prof don come, make we enter the class quick quick
+Tokens: 11
+Token Breakdown:
+  ADVERB: 2
+  ARTICLE: 1
+  CONNECTOR: 1
+  NOUN: 1
+  PIDGIN_VERB: 1
+  PRONOUN: 1
+  PROPER_NOUN: 1
+  SUBJUNCTIVE: 1
+  VERB: 2
+Parse Result: ACCEPTED
+--------------------------------------------------------------------------------
+

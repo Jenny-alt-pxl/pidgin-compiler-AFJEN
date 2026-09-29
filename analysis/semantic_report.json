@@ -4,7 +4,7 @@
     {
       "id": "stmt_001",
       "text": "Brother, drop me na at Carrefour Yaoundé, the traffic done tire me small",
-      "category": "transport",
+      "category": "Taxi & Commuting",
       "intent": "action",
       "valid_syntax": true,
       "ast": {
@@ -17,7 +17,7 @@
     {
       "id": "stmt_002",
       "text": "Hala me small money, na five hundred francs remain for transport",
-      "category": "transport",
+      "category": "Taxi & Commuting",
       "intent": "statement",
       "valid_syntax": true,
       "ast": {
@@ -56,7 +56,7 @@
     {
       "id": "stmt_005",
       "text": "The light done cut again, zéro-zéro, na generator we dey use since morning",
-      "category": "energy",
+      "category": "Electricity",
       "intent": "narration",
       "valid_syntax": true,
       "ast": {
@@ -69,7 +69,7 @@
     {
       "id": "stmt_006",
       "text": "Je wanda why MTN network no fit work for this quarter, it's always down-down",
-      "category": "internet",
+      "category": "Poor Internet",
       "intent": "narration",
       "valid_syntax": true,
       "ast": {
@@ -82,7 +82,7 @@
     {
       "id": "stmt_007",
       "text": "Mama, make you reduce am na small, two thousand francs too much for tomatoes, ekiee",
-      "category": "market",
+      "category": "Market Bargaining",
       "intent": "action",
       "valid_syntax": true,
       "ast": {
@@ -108,7 +108,7 @@
     {
       "id": "stmt_009",
       "text": "Brother, the bendskin dey charge too much, five hundred for two kilometers, c'est cher ooo",
-      "category": "market",
+      "category": "Bendskin",
       "intent": "narration",
       "valid_syntax": true,
       "ast": {
@@ -121,7 +121,7 @@
     {
       "id": "stmt_010",
       "text": "They say checkpoint ahead, document dey for front, make we be careful pass",
-      "category": "security",
+      "category": "Security Checkpoints",
       "intent": "narration",
       "valid_syntax": true,
       "ast": {
@@ -134,7 +134,7 @@
     {
       "id": "stmt_011",
       "text": "Rain don fall so, the road done become mud, car stuck for quartier Mambanda",
-      "category": "transport",
+      "category": "Rainy Season",
       "intent": "action",
       "valid_syntax": true,
       "ast": {
@@ -147,7 +147,7 @@
     {
       "id": "stmt_012",
       "text": "Petrol dey scarce, pump don empty again, we go wait small before go fill tank",
-      "category": "energy",
+      "category": "Fuel Scarcity",
       "intent": "action",
       "valid_syntax": true,
       "ast": {
@@ -173,7 +173,7 @@
     {
       "id": "stmt_014",
       "text": "Lecture done start, prof say come sit down, but the class dey too crowded, hmmm",
-      "category": "university",
+      "category": "ICT University",
       "intent": "action",
       "valid_syntax": true,
       "ast": {
@@ -186,7 +186,202 @@
     {
       "id": "stmt_015",
       "text": "After exam finish, we go for beer na, relax small, this semester done tire me",
-      "category": "university",
+      "category": "ICT University",
+      "intent": "action",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_016",
+      "text": "Driver, stop for junction, I don reach",
+      "category": "Taxi & Commuting",
+      "intent": "statement",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_017",
+      "text": "The taxi dey full, we go wait for another one",
+      "category": "Taxi & Commuting",
+      "intent": "action",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_018",
+      "text": "Bendskin man, wait here small, I go come now",
+      "category": "Bendskin",
+      "intent": "action",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_019",
+      "text": "Network dey bad again, I no fit send the message",
+      "category": "Poor Internet",
+      "intent": "narration",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_020",
+      "text": "Light don go since morning, we dey use candle",
+      "category": "Electricity",
+      "intent": "narration",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_021",
+      "text": "Sister, how much for this fish? Abeg reduce am small",
+      "category": "general",
+      "intent": "question",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_022",
+      "text": "Rain dey fall plenty, my shoe don wet",
+      "category": "Rainy Season",
+      "intent": "narration",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_023",
+      "text": "The gutter don block, water dey enter the shop",
+      "category": "Rainy Season",
+      "intent": "narration",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_024",
+      "text": "Fuel don finish for the station, we go queue tomorrow",
+      "category": "Fuel Scarcity",
+      "intent": "narration",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_025",
+      "text": "Fuel don increase again, transport go cost more",
+      "category": "Fuel Scarcity",
+      "intent": "narration",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_026",
+      "text": "Madam, fry the fish well well, I dey wait",
+      "category": "Roadside Business",
+      "intent": "action",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_027",
+      "text": "Brother, the suya dey sweet, give me one more",
+      "category": "Roadside Business",
+      "intent": "action",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_028",
+      "text": "Officer, my paper dey complete, abeg make I go",
+      "category": "Security Checkpoints",
+      "intent": "narration",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_029",
+      "text": "Police dey for the roadblock, prepare your document",
+      "category": "Security Checkpoints",
+      "intent": "narration",
+      "valid_syntax": true,
+      "ast": {
+        "kind": "Program",
+        "children": [
+          "Statement"
+        ]
+      }
+    },
+    {
+      "id": "stmt_030",
+      "text": "Prof don come, make we enter the class quick quick",
+      "category": "ICT University",
       "intent": "action",
       "valid_syntax": true,
       "ast": {

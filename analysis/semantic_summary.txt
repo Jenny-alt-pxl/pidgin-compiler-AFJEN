@@ -1,9 +1,9 @@
 AFJEN COMPILER SEMANTIC SUMMARY
 ======================================
-01. transport | action | VALID
+01. Taxi & Commuting | action | VALID
     Brother, drop me na at Carrefour Yaoundé, the traffic done tire me small
 
-02. transport | statement | VALID
+02. Taxi & Commuting | statement | VALID
     Hala me small money, na five hundred francs remain for transport
 
 03. transport | action | VALID
@@ -12,35 +12,80 @@ AFJEN COMPILER SEMANTIC SUMMARY
 04. internet | action | VALID
     Eh mon Dieu, internet dey do again? I don try restart modem, garrr nothing!
 
-05. energy | narration | VALID
+05. Electricity | narration | VALID
     The light done cut again, zéro-zéro, na generator we dey use since morning
 
-06. internet | narration | VALID
+06. Poor Internet | narration | VALID
     Je wanda why MTN network no fit work for this quarter, it's always down-down
 
-07. market | action | VALID
+07. Market Bargaining | action | VALID
     Mama, make you reduce am na small, two thousand francs too much for tomatoes, ekiee
 
 08. market | action | VALID
     Chop na fresh, fresh! Come take am now, I give you good price, no wahala
 
-09. market | narration | VALID
+09. Bendskin | narration | VALID
     Brother, the bendskin dey charge too much, five hundred for two kilometers, c'est cher ooo
 
-10. security | narration | VALID
+10. Security Checkpoints | narration | VALID
     They say checkpoint ahead, document dey for front, make we be careful pass
 
-11. transport | action | VALID
+11. Rainy Season | action | VALID
     Rain don fall so, the road done become mud, car stuck for quartier Mambanda
 
-12. energy | action | VALID
+12. Fuel Scarcity | action | VALID
     Petrol dey scarce, pump don empty again, we go wait small before go fill tank
 
 13. internet | question | VALID
     How much for this phone airtime? OK, load me two thousand balance make I browse
 
-14. university | action | VALID
+14. ICT University | action | VALID
     Lecture done start, prof say come sit down, but the class dey too crowded, hmmm
 
-15. university | action | VALID
+15. ICT University | action | VALID
     After exam finish, we go for beer na, relax small, this semester done tire me
+
+16. Taxi & Commuting | statement | VALID
+    Driver, stop for junction, I don reach
+
+17. Taxi & Commuting | action | VALID
+    The taxi dey full, we go wait for another one
+
+18. Bendskin | action | VALID
+    Bendskin man, wait here small, I go come now
+
+19. Poor Internet | narration | VALID
+    Network dey bad again, I no fit send the message
+
+20. Electricity | narration | VALID
+    Light don go since morning, we dey use candle
+
+21. general | question | VALID
+    Sister, how much for this fish? Abeg reduce am small
+
+22. Rainy Season | narration | VALID
+    Rain dey fall plenty, my shoe don wet
+
+23. Rainy Season | narration | VALID
+    The gutter don block, water dey enter the shop
+
+24. Fuel Scarcity | narration | VALID
+    Fuel don finish for the station, we go queue tomorrow
+
+25. Fuel Scarcity | narration | VALID
+    Fuel don increase again, transport go cost more
+
+26. Roadside Business | action | VALID
+    Madam, fry the fish well well, I dey wait
+
+27. Roadside Business | action | VALID
+    Brother, the suya dey sweet, give me one more
+
+28. Security Checkpoints | narration | VALID
+    Officer, my paper dey complete, abeg make I go
+
+29. Security Checkpoints | narration | VALID
+    Police dey for the roadblock, prepare your document
+
+30. ICT University | action | VALID
+    Prof don come, make we enter the class quick quick

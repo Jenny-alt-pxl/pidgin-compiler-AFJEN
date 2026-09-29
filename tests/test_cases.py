@@ -1,7 +1,7 @@
 """
 Test Cases for Yaoundé Compiler
 CS4110 - Compiler Construction
-Tests lexical and syntactic analysis on all 15 collected statements
+Tests lexical and syntactic analysis on all 30 corpus statements
 """
 
 import sys
@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 from lexical_analyzer import LexicalAnalyzer, TokenType
 from parser import Parser, parse_statement, parse_statement_detailed
 from semantic_analyzer import SemanticAnalyzer
+import corpus
 
 
 class TestRunner:
@@ -20,36 +21,9 @@ class TestRunner:
         self.analyzer = LexicalAnalyzer()
         self.test_results = []
     
-    # Test statements from data collection
-    TEST_STATEMENTS = [
-        # Taxi & Commuting Issues
-        ("stmt_001", "Brother, drop me na at Carrefour Yaoundé, the traffic done tire me small"),
-        ("stmt_002", "Hala me small money, na five hundred francs remain for transport"),
-        ("stmt_003", "Taxi! Yaoundé, Yaoundé! Fill am make we go, pas time dey waka!"),
-        
-        # Internet & Electricity
-        ("stmt_004", "Eh mon Dieu, internet dey do again? I don try restart modem, garrr nothing!"),
-        ("stmt_005", "The light done cut again, zéro-zéro, na generator we dey use since morning"),
-        ("stmt_006", "Je wanda why MTN network no fit work for this quarter, it's always down-down"),
-        
-        # Market Bargaining & Roadside Business
-        ("stmt_007", "Mama, make you reduce am na small, two thousand francs too much for tomatoes, ekiee"),
-        ("stmt_008", "Chop na fresh, fresh! Come take am now, I give you good price, no wahala"),
-        ("stmt_009", "Brother, the bendskin dey charge too much, five hundred for two kilometers, c'est cher ooo"),
-        
-        # Security & Rainy Season
-        ("stmt_010", "They say checkpoint ahead, document dey for front, make we be careful pass"),
-        ("stmt_011", "Rain don fall so, the road done become mud, car stuck for quartier Mambanda"),
-        
-        # Fuel Scarcity & Everyday Transactions
-        ("stmt_012", "Petrol dey scarce, pump don empty again, we go wait small before go fill tank"),
-        ("stmt_013", "How much for this phone airtime? OK, load me two thousand balance make I browse"),
-        
-        # University & General Slang
-        ("stmt_014", "Lecture done start, prof say come sit down, but the class dey too crowded, hmmm"),
-        ("stmt_015", "After exam finish, we go for beer na, relax small, this semester done tire me"),
-    ]
-    
+    # Test statements: the 30 statements of the AFJEN corpus (src/corpus.py)
+    TEST_STATEMENTS = [(c["id"], c["text"]) for c in corpus.CORPUS]
+
     # Extra grammatical sentences (NOT in the collected data) - the grammar must generalise
     EXTRA_ACCEPT = [
         "The taxi don reach Carrefour",
@@ -277,15 +251,10 @@ class TestRunner:
         print("PARSING RESULTS BY CATEGORY")
         print(f"{'='*80}")
         
-        categories = {
-            'Taxi & Commuting': ['stmt_001', 'stmt_002', 'stmt_003'],
-            'Internet & Electricity': ['stmt_004', 'stmt_005', 'stmt_006'],
-            'Market & Business': ['stmt_007', 'stmt_008', 'stmt_009'],
-            'Security & Weather': ['stmt_010', 'stmt_011'],
-            'Fuel & Transactions': ['stmt_012', 'stmt_013'],
-            'University & General': ['stmt_014', 'stmt_015'],
-        }
-        
+        categories = {}
+        for c in corpus.CORPUS:
+            categories.setdefault(c["topic"], []).append(c["id"])
+
         for category, stmt_ids in categories.items():
             accepted = sum(1 for r in self.test_results if r['id'] in stmt_ids and r['syntactic']['accepted'])
             total = len(stmt_ids)

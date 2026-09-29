@@ -445,3 +445,14 @@ word-frequency chart (Insights tab), copy both languages, save translation to a 
 Cameroon Pidgin markers supported: `dey/di`, `done/don`, `bin`, `go`, `fit`, `wan`, `mos`, `no`, `neva`, `wuna`.
 
 Unit tests for the new features: `python tests/test_afjen.py`.
+
+### v3 - redesigned front end, 30 statements, add statements and words
+
+- New "Rosewood & Ivory" interface with a sidebar (Translate, Dictionary, Statements, Insights, Test Suite, Grammar, About).
+- **30 statements** (`src/corpus.py`) across the exam topics, each with verified English and French translations.
+  Statements 1-15 were collected in Yaoundé; 16-30 are typical further examples - replace them with ones you heard.
+- **＋ Add statement** stores your own statement + corrected translation (`data/user_statements.json`);
+  **＋ Add word** stores a word (`data/user_dictionary.json`). Both take effect immediately.
+- The dictionary is alphabetical (A → Z, with a letter bar); **Save to file** writes original + English + Français.
+- `data/word_bank.json` (words collected from analysed text) is now kept in the repository.
+- Tests: `python tests/test_afjen.py` (15 tests) and `python main.py test`.

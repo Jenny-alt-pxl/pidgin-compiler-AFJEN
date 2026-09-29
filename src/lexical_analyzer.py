@@ -105,16 +105,16 @@ class LexicalAnalyzer:
             (r"\b(one|two|three|four|five|six|seven|eight|nine|ten|hundred|thousand)\b", TokenType.NUMBER),
 
             # Adverbs (before adjectives so "too" stays an adverb)
-            (r"\b(again|so|too|just|even|already|always|never|neva|neba|now|down(?!-)|pass|ahead|here|there|today|tomorrow|soon|late|early)\b", TokenType.ADVERB),
+            (r"\b(again|so|too|just|even|already|always|never|neva|neba|now|down(?!-)|pass|ahead|here|there|today|tomorrow|soon|late|early|plenty|more|less|well|quick)\b", TokenType.ADVERB),
 
             # Adjectives
-            (r"(?<![\wé-])(fresh|good|scarce|crowded|cher|down-down|much|careful|tired|slow|cheap|expensive|wet|hot|cold|heavy|dark|long|hungry|big|bad|new)(?![\wé-])", TokenType.ADJECTIVE),
+            (r"(?<![\wé-])(fresh|good|scarce|crowded|cher|down-down|much|careful|tired|full|complete|hard|sweet|slow|cheap|expensive|wet|hot|cold|heavy|dark|long|hungry|big|bad|new)(?![\wé-])", TokenType.ADJECTIVE),
 
             # Proper nouns
             (r"\b(Yaoundé|Carrefour|Mambanda|MTN|Mama|Brother|Prof|ICT)\b", TokenType.PROPER_NOUN),
 
             # Verbs
-            (r"\b(drop|tire|hala|try|cut|remain|fill|go|waka|take|load|start|finish|work|charge|reduce|browse|relax|say|come|use|give|wait|empty|fall|stuck|restart|become|be|sit|do|buy|see|know|reach|stop|pay|drive|park|arrive|move|sell|cook|eat|drink|call|send|ask|tell|carry|bring|leave|stay|open|close|sleep|cost|pick|stand|hold|climb|turn|run|walk|show|sabi|komot|tif|dance|talk|look|want|need|like|love|help|think|tchop)\b", TokenType.VERB),
+            (r"\b(drop|tire|hala|try|cut|remain|fill|go|waka|take|load|start|finish|work|charge|reduce|browse|relax|say|come|use|give|wait|empty|fall|stuck|restart|become|be|sit|do|buy|see|know|reach|stop|pay|drive|park|arrive|move|sell|cook|eat|drink|call|send|ask|tell|carry|bring|leave|stay|open|close|sleep|cost|pick|stand|hold|climb|turn|run|walk|show|sabi|komot|tif|dance|talk|look|want|need|like|love|help|think|tchop|queue|increase|enter|fry|prepare|block|read)\b", TokenType.VERB),
 
             # Nouns (catch-all for remaining words; accents, hyphens, apostrophes allowed inside)
             (r"[a-zà-ÿ]+(?:[-'][a-zà-ÿ]+)*", TokenType.NOUN),

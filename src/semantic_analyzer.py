@@ -35,12 +35,23 @@ class SemanticAnalyzer:
     def _detect_category(self, tokens: List[Token]) -> str:
         text = " ".join(t.value for t in tokens if t.type != TokenType.EOF).lower()
 
+        # statements from the collection carry their own topic
+        try:
+            import statements
+            import translator
+            norm = translator._norm(" ".join(t.value for t in tokens if t.type != TokenType.EOF))
+            for row in statements.all_statements():
+                if translator._norm(str(row["text"])).replace(" ,", ",") == norm.replace(" ,", ","):
+                    return str(row["topic"])
+        except Exception:
+            pass
+
         keywords = {
-            "transport": ["taxi", "transport", "carrefour", "road", "traffic", "bus", "passenger"],
+            "transport": ["taxi", "transport", "carrefour", "road", "traffic", "bus", "passenger", "driver", "junction", "bendskin", "moto"],
             "internet": ["internet", "modem", "network", "mtn", "signal", "browser", "airtime"],
             "market": ["money", "francs", "tomatoes", "price", "market", "buy", "charge", "price"],
             "security": ["checkpoint", "document", "road", "rain", "mud", "police", "careful"],
-            "energy": ["light", "generator", "petrol", "pump", "empty", "fuel", "electricity"],
+            "energy": ["light", "generator", "petrol", "pump", "empty", "fuel", "electricity", "candle", "station"],
             "university": ["lecture", "exam", "semester", "class", "prof", "student", "beer"],
         }
 
@@ -86,23 +97,8 @@ class SemanticAnalyzer:
         """Write a JSON report for all statements from the project corpus."""
         from pathlib import Path
 
-        corpus = [
-            "Brother, drop me na at Carrefour Yaoundé, the traffic done tire me small",
-            "Hala me small money, na five hundred francs remain for transport",
-            "Taxi! Yaoundé, Yaoundé! Fill am make we go, pas time dey waka!",
-            "Eh mon Dieu, internet dey do again? I don try restart modem, garrr nothing!",
-            "The light done cut again, zéro-zéro, na generator we dey use since morning",
-            "Je wanda why MTN network no fit work for this quarter, it's always down-down",
-            "Mama, make you reduce am na small, two thousand francs too much for tomatoes, ekiee",
-            "Chop na fresh, fresh! Come take am now, I give you good price, no wahala",
-            "Brother, the bendskin dey charge too much, five hundred for two kilometers, c'est cher ooo",
-            "They say checkpoint ahead, document dey for front, make we be careful pass",
-            "Rain don fall so, the road done become mud, car stuck for quartier Mambanda",
-            "Petrol dey scarce, pump don empty again, we go wait small before go fill tank",
-            "How much for this phone airtime? OK, load me two thousand balance make I browse",
-            "Lecture done start, prof say come sit down, but the class dey too crowded, hmmm",
-            "After exam finish, we go for beer na, relax small, this semester done tire me",
-        ]
+        import corpus as _corpus
+        corpus = _corpus.texts()
 
         report = {
             "project": "AFJEN Compiler",
@@ -132,23 +128,8 @@ class SemanticAnalyzer:
         """Write a human-readable summary from the same corpus."""
         from pathlib import Path
 
-        corpus = [
-            "Brother, drop me na at Carrefour Yaoundé, the traffic done tire me small",
-            "Hala me small money, na five hundred francs remain for transport",
-            "Taxi! Yaoundé, Yaoundé! Fill am make we go, pas time dey waka!",
-            "Eh mon Dieu, internet dey do again? I don try restart modem, garrr nothing!",
-            "The light done cut again, zéro-zéro, na generator we dey use since morning",
-            "Je wanda why MTN network no fit work for this quarter, it's always down-down",
-            "Mama, make you reduce am na small, two thousand francs too much for tomatoes, ekiee",
-            "Chop na fresh, fresh! Come take am now, I give you good price, no wahala",
-            "Brother, the bendskin dey charge too much, five hundred for two kilometers, c'est cher ooo",
-            "They say checkpoint ahead, document dey for front, make we be careful pass",
-            "Rain don fall so, the road done become mud, car stuck for quartier Mambanda",
-            "Petrol dey scarce, pump don empty again, we go wait small before go fill tank",
-            "How much for this phone airtime? OK, load me two thousand balance make I browse",
-            "Lecture done start, prof say come sit down, but the class dey too crowded, hmmm",
-            "After exam finish, we go for beer na, relax small, this semester done tire me",
-        ]
+        import corpus as _corpus
+        corpus = _corpus.texts()
 
         lines = [
             "AFJEN COMPILER SEMANTIC SUMMARY",
